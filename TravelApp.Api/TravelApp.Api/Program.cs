@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -38,7 +39,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -47,11 +47,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowAngular");
 app.UseHttpsRedirection();
@@ -60,7 +57,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/", () => "API is running");
-app.MapGet("/ping", () => "pong");
+
+app.MapGet("/routes", (EndpointDataSource endpointSource) =>
+{
+    var routes = endpointSource.Endpoints
+        .Select(e => e.DisplayName)
+        .ToList();
+
+    return Results.Ok(routes);
+});
 
 app.MapControllers();
 
