@@ -1,0 +1,88 @@
+<div class="feed" [class.dark]="isDark">
+
+  <div class="feed-header">
+    <div class="weekend-toggle" (click)="toggleWeekend()">
+      <svg class="header-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      <span>{{ user?.homeCity || 'Выходные' }}</span>
+      <svg class="toggle-chevron" [class.open]="showWeekend" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <button class="theme-btn" (click)="toggleTheme()">
+      @if (isDark) {
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      } @else {
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      }
+    </button>
+  </div>
+
+  @if (showWeekend && weekendTips) {
+    <div class="weekend-panel">
+      <div class="tips-text" [innerHTML]="formatTips(weekendTips)"></div>
+    </div>
+  }
+
+  @if (showWeekend && isLoadingTips) {
+    <div class="weekend-panel">
+      <div class="tips-loading">
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        Гид подбирает варианты...
+      </div>
+    </div>
+  }
+
+  <div class="cards-container" #cardsContainer>
+    @for (city of cities; track city.id; let i = $index) {
+      <div class="city-slide" (click)="openCity(city.id)">
+
+        @if (getPhotoUrl(city)) {
+          <img [src]="getPhotoUrl(city)" [alt]="city.name" class="slide-bg" />
+        } @else {
+          <div class="slide-bg slide-bg-gradient"></div>
+        }
+        <div class="slide-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-tags">
+            @for (tag of getTags(city); track tag) {
+              <span class="slide-tag">{{ tag }}</span>
+            }
+          </div>
+          <h2 class="slide-title">{{ city.name }}</h2>
+          <p class="slide-desc">{{ city.description }}</p>
+
+          <div class="slide-actions">
+            <button class="action-btn heart-btn" (click)="toggleSave($event, city.id)" [class.saved]="isSaved(city.id)">
+              <svg width="22" height="22" viewBox="0 0 24 24" [attr.fill]="isSaved(city.id) ? '#ff375f' : 'none'" [attr.stroke]="isSaved(city.id) ? '#ff375f' : 'white'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+            <button class="action-btn details-btn" (click)="$event.stopPropagation(); openCity(city.id)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              Подробнее
+            </button>
+            <button class="action-btn ai-btn" (click)="$event.stopPropagation(); openCity(city.id)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    }
+  </div>
+
+</div>

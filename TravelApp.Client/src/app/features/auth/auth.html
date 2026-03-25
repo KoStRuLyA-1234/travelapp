@@ -1,0 +1,68 @@
+<div class="auth-page">
+
+  <div class="auth-bg">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <div class="auth-header">
+    <div class="logo">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#a78bfa"/>
+            <stop offset="100%" stop-color="#4f46e5"/>
+          </linearGradient>
+        </defs>
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    </div>
+    <h1>TravelApp</h1>
+    <p>Открой Россию по-новому</p>
+  </div>
+
+  <div class="auth-card">
+
+    <div class="tabs">
+      <button [class.active]="isLogin" (click)="isLogin = true">Вход</button>
+      <button [class.active]="!isLogin" (click)="isLogin = false">Регистрация</button>
+    </div>
+
+    @if (error) {
+      <div class="error">{{ error }}</div>
+    }
+
+    @if (!isLogin) {
+      <div class="field">
+        <label>Имя</label>
+        <input [(ngModel)]="name" placeholder="Как тебя зовут?" />
+      </div>
+    }
+
+    <div class="field">
+      <label>Email</label>
+      <input [(ngModel)]="email" type="email" placeholder="твой&#64;email.com" />
+    </div>
+
+    <div class="field">
+      <label>Пароль</label>
+      <input [(ngModel)]="password" type="password" placeholder="Минимум 6 символов" />
+    </div>
+
+    @if (!isLogin) {
+      <div class="field">
+        <label>Твой город</label>
+        <input [(ngModel)]="homeCity" placeholder="Например: Иваново" />
+        <span class="hint">Подберём куда съездить на выходных</span>
+      </div>
+    }
+
+    <button class="submit-btn" (click)="submit()" [disabled]="isLoading">
+      {{ isLoading ? 'Загружаем...' : (isLogin ? 'Войти' : 'Зарегистрироваться') }}
+    </button>
+
+  </div>
+
+</div>

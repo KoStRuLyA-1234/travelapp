@@ -1,0 +1,403 @@
+<div class="planner">
+  <div class="planner-header">
+    <button class="back-btn" (click)="back()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <span class="city-name">{{ city?.name }}</span>
+    @if (step < 4) {
+      <div class="step-dots">
+        @for (s of [1, 2, 3]; track s) {
+          <span class="step-dot" [class.active]="step >= s" [class.current]="step === s"></span>
+        }
+      </div>
+    } @else {
+      <span class="step-placeholder"></span>
+    }
+  </div>
+
+  @if (step === 1) {
+    <div class="step-content" style="animation: fadeInUp 0.4s ease both">
+      <div class="step-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <h2>Сколько дней?</h2>
+      <p>Выбери продолжительность поездки</p>
+      <div class="days-grid">
+        @for (d of days; track d) {
+          <button class="day-btn" [class.active]="selectedDays === d" (click)="selectDays(d)">
+            <span class="day-num">{{ d }}</span>
+            <span class="day-label">{{ d === 1 ? 'день' : d < 5 ? 'дня' : 'дней' }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (step === 2) {
+    <div class="step-content" style="animation: fadeInUp 0.4s ease both">
+      <div class="step-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <h2>Стиль поездки</h2>
+      <p>Что тебе больше нравится?</p>
+      <div class="options-grid">
+        @for (s of styles; track s.id) {
+          <button class="option-btn" [class.active]="selectedStyle === s.id" (click)="selectStyle(s.id)">
+            <span class="option-icon-svg">
+              @if (s.id === 'culture') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="3" y1="22" x2="21" y2="22"/>
+                  <line x1="6" y1="18" x2="6" y2="10"/>
+                  <line x1="10" y1="18" x2="10" y2="10"/>
+                  <line x1="14" y1="18" x2="14" y2="10"/>
+                  <line x1="18" y1="18" x2="18" y2="10"/>
+                  <polygon points="12 2 2 8 22 8"/>
+                </svg>
+              }
+              @if (s.id === 'food') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                  <path d="M7 2v20"/>
+                  <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                </svg>
+              }
+              @if (s.id === 'active') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="13.5" cy="6.5" r="2.5"/>
+                  <path d="M7 21l3-7"/>
+                  <path d="M16 21l-2-5-3-3 2-4 4 2 1 4"/>
+                  <path d="M6 12l4-2"/>
+                </svg>
+              }
+              @if (s.id === 'relax') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                  <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                  <line x1="6" y1="2" x2="6" y2="4"/>
+                  <line x1="10" y1="2" x2="10" y2="4"/>
+                  <line x1="14" y1="2" x2="14" y2="4"/>
+                </svg>
+              }
+              @if (s.id === 'party') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="18" r="3"/>
+                  <path d="M9 3v12"/>
+                  <path d="M9 3c2 0 6 1 6 5"/>
+                  <circle cx="19" cy="18" r="1"/>
+                  <circle cx="19" cy="14" r="1"/>
+                  <circle cx="15" cy="14" r="1"/>
+                </svg>
+              }
+              @if (s.id === 'budget') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                  <line x1="12" y1="11" x2="12" y2="17"/>
+                  <line x1="9" y1="14" x2="15" y2="14"/>
+                </svg>
+              }
+            </span>
+            <span class="option-label">{{ s.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (step === 3) {
+    <div class="step-content" style="animation: fadeInUp 0.4s ease both">
+      <div class="step-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <h2>С кем едешь?</h2>
+      <p>Подберём маршрут под компанию</p>
+      <div class="options-grid">
+        @for (w of withs; track w.id) {
+          <button class="option-btn" [class.active]="selectedWith === w.id" (click)="selectWith(w.id)">
+            <span class="option-icon-svg">
+              @if (w.id === 'solo') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              }
+              @if (w.id === 'partner') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              }
+              @if (w.id === 'family') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              }
+              @if (w.id === 'friends') {
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  <circle cx="19" cy="11" r="1"/>
+                  <circle cx="22" cy="8" r="1"/>
+                </svg>
+              }
+            </span>
+            <span class="option-label">{{ w.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (step === 4) {
+    <div class="result-content">
+      @if (isGenerating) {
+        <div class="generating">
+          <div class="gen-spinner">
+            <div class="spinner-ring"></div>
+            <svg class="spinner-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+            </svg>
+          </div>
+          <p>AI составляет маршрут...</p>
+          <span>Это займёт несколько секунд</span>
+        </div>
+      }
+
+      @if (!isGenerating && generatedRoute) {
+        <div class="route-result">
+          <div class="route-header">
+            <div class="route-header-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+              </svg>
+            </div>
+            <div>
+              <h2>Твой маршрут</h2>
+              <p>{{ city?.name }} · {{ selectedDays }} {{ selectedDays === 1 ? 'день' : selectedDays < 5 ? 'дня' : 'дней' }}</p>
+            </div>
+          </div>
+
+          @if (routeDays.length > 0) {
+            <div class="map-section">
+              <div class="map-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                  <line x1="8" y1="2" x2="8" y2="18"/>
+                  <line x1="16" y1="6" x2="16" y2="22"/>
+                </svg>
+                Маршрут на карте
+              </div>
+              <div id="route-map" class="route-map"></div>
+            </div>
+
+            <div class="route-days">
+              @for (routeDay of routeDays; track routeDay.day) {
+                <div class="day-block">
+                  <div class="day-badge">День {{ routeDay.day }}</div>
+                  @for (place of routeDay.places; track place.name + '-' + place.time + '-' + $index) {
+                    <div class="place-item">
+                      <div class="place-time-col">
+                        <span class="place-time">{{ place.time }}</span>
+                        <div class="time-line"></div>
+                      </div>
+                      <div class="place-info">
+                        <span class="place-name">{{ place.name }}</span>
+                        <p class="place-tip">{{ place.tip }}</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="day-block">
+              <div class="place-info">
+                <span class="place-name">Маршрут не удалось распарсить полностью</span>
+                <p class="place-tip" [innerHTML]="formatRoute(generatedRoute)"></p>
+              </div>
+            </div>
+          }
+
+          <div class="route-actions">
+            <button class="retry-btn" (click)="generate()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+              Сгенерировать снова
+            </button>
+            <button class="pdf-btn" (click)="downloadPdf()" [disabled]="isPdfGenerating || routeDays.length === 0">
+              @if (isPdfGenerating) {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin">
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                </svg>
+              } @else {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              }
+              {{ isPdfGenerating ? 'Создание...' : 'Скачать PDF' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div id="pdf-template" style="display:none; position:fixed; left:-9999px; top:0; width:794px; background:#f5f3ff; font-family:'Inter',sans-serif;">
+    <div class="pdf-page" style="width:794px; height:1123px; background:#ffffff; color:#1f2937; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#6B21A8 0%,#9333EA 55%,#C026D3 100%); padding:52px 48px 36px; color:#fff;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+          </svg>
+          <span style="font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; opacity:0.9;">TravelApp · AI маршрут</span>
+        </div>
+        <h1 style="margin:0 0 10px; font-size:46px; line-height:1.04; font-weight:800; letter-spacing:-0.03em;">{{ city?.name }}</h1>
+        <p style="margin:0; font-size:18px; line-height:1.5; opacity:0.92;">
+          {{ selectedDays }} {{ selectedDays === 1 ? 'день' : selectedDays < 5 ? 'дня' : 'дней' }} ·
+          {{ getSelectedStyleLabel() }} ·
+          {{ getSelectedWithLabel() }}
+        </p>
+      </div>
+
+      <div style="padding:28px 48px 24px; flex:1; display:flex; flex-direction:column; gap:24px;">
+        @if (city?.imageUrl) {
+          <div style="width:100%; height:360px; overflow:hidden; position:relative; border-radius:28px; box-shadow:0 18px 40px rgba(91,33,182,0.18);">
+            <img [src]="city?.imageUrl" crossorigin="anonymous" style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;" />
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,24,39,0.24), rgba(17,24,39,0.02) 38%, transparent 65%);"></div>
+          </div>
+        } @else {
+          <div style="height:360px; border-radius:28px; background:linear-gradient(135deg,#ede9fe,#f5d0fe); border:1px solid #e9d5ff; display:flex; align-items:center; justify-content:center; color:#7c3aed; font-size:22px; font-weight:700;">
+            TravelApp
+          </div>
+        }
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+          <div style="padding:20px; border-radius:20px; background:#faf5ff; border:1px solid #eadcff;">
+            <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#9333ea; font-weight:700; margin-bottom:8px;">Длительность</div>
+            <div style="font-size:22px; font-weight:800; color:#1f2937;">{{ selectedDays }}</div>
+            <div style="font-size:14px; color:#6b7280;">{{ selectedDays === 1 ? 'день' : selectedDays < 5 ? 'дня' : 'дней' }}</div>
+          </div>
+          <div style="padding:20px; border-radius:20px; background:#faf5ff; border:1px solid #eadcff;">
+            <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#9333ea; font-weight:700; margin-bottom:8px;">Формат</div>
+            <div style="font-size:18px; font-weight:700; color:#1f2937;">{{ getSelectedStyleLabel() }}</div>
+            <div style="font-size:14px; color:#6b7280;">под твой стиль</div>
+          </div>
+          <div style="padding:20px; border-radius:20px; background:#faf5ff; border:1px solid #eadcff;">
+            <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#9333ea; font-weight:700; margin-bottom:8px;">Компания</div>
+            <div style="font-size:18px; font-weight:700; color:#1f2937;">{{ getSelectedWithLabel() }}</div>
+            <div style="font-size:14px; color:#6b7280;">адаптировано под поездку</div>
+          </div>
+        </div>
+
+        <div style="padding:24px 26px; border-radius:24px; background:#ffffff; border:1px solid #ede9fe; box-shadow:0 12px 30px rgba(124,58,237,0.08);">
+          <div style="font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:#9333ea; font-weight:700; margin-bottom:10px;">Что внутри</div>
+          <div style="font-size:16px; line-height:1.7; color:#4b5563;">
+            Внутри собран маршрут по дням с местами, временем посещения и краткими советами для прогулки по городу.
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:20px 48px 28px; border-top:1px solid #f3e8ff; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+          </svg>
+          <span style="font-size:13px; font-weight:700; color:#9333EA;">TravelApp</span>
+        </div>
+        <span style="font-size:12px; color:#9CA3AF;">Страница 1 / {{ routeDays.length + 1 }}</span>
+      </div>
+    </div>
+
+    @for (routeDay of routeDays; track routeDay.day; let index = $index) {
+      <div class="pdf-page" style="width:794px; height:1123px; background:#ffffff; color:#1f2937; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:34px 48px 20px; border-bottom:1px solid #f3e8ff; background:#ffffff;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#7c3aed,#c026d3); display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:800;">{{ routeDay.day }}</div>
+                <span style="font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:#9333ea; font-weight:700;">{{ city?.name }} · маршрут</span>
+              </div>
+              <h2 style="margin:0 0 8px; font-size:34px; line-height:1.08; font-weight:800; color:#111827;">День {{ routeDay.day }}</h2>
+              <p style="margin:0; font-size:15px; line-height:1.6; color:#6b7280;">
+                {{ routeDay.places.length }} {{ routeDay.places.length === 1 ? 'место' : routeDay.places.length < 5 ? 'места' : 'мест' }}
+                в маршруте на этот день.
+              </p>
+            </div>
+            <div style="padding:12px 14px; border-radius:18px; background:#faf5ff; border:1px solid #e9d5ff; min-width:150px;">
+              <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#9333ea; font-weight:700; margin-bottom:6px;">Параметры</div>
+              <div style="font-size:14px; line-height:1.7; color:#4b5563;">
+                {{ getSelectedStyleLabel() }}<br />
+                {{ getSelectedWithLabel() }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:28px 48px 24px; flex:1; background:linear-gradient(180deg,#fcfaff 0%,#ffffff 100%);">
+          <div style="height:100%; background:#ffffff; border-radius:24px; box-shadow:0 16px 36px rgba(124,58,237,0.10); border:1px solid #f3e8ff; overflow:hidden;">
+            <div style="background:linear-gradient(90deg,#7C3AED,#A855F7); padding:16px 24px; display:flex; align-items:center; gap:12px;">
+              <div style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff;">{{ routeDay.day }}</div>
+              <span style="color:#fff; font-weight:700; font-size:18px; letter-spacing:0.01em;">План на день {{ routeDay.day }}</span>
+            </div>
+            <div style="padding:8px 0;">
+              @for (place of routeDay.places; track place.name + '-' + place.time + '-' + $index; let last = $last) {
+                <div [style]="'display:flex; gap:18px; padding:22px 24px; border-bottom:' + (last ? 'none' : '1px solid #F3E8FF')">
+                  <div style="flex-shrink:0; min-width:76px;">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; min-width:72px; font-size:15px; font-weight:800; color:#7C3AED; background:#F3E8FF; padding:8px 12px; border-radius:12px; white-space:nowrap;">{{ place.time }}</span>
+                  </div>
+                  <div style="min-width:0; flex:1;">
+                    <div style="font-size:22px; line-height:1.25; font-weight:700; color:#111827; margin-bottom:8px;">{{ place.name }}</div>
+                    <div style="font-size:16px; color:#6B7280; line-height:1.65;">{{ place.tip }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:20px 48px 28px; border-top:1px solid #f3e8ff; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+            </svg>
+            <span style="font-size:13px; font-weight:700; color:#9333EA;">TravelApp</span>
+          </div>
+          <span style="font-size:12px; color:#9CA3AF;">Страница {{ index + 2 }} / {{ routeDays.length + 1 }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (step < 4) {
+    <div class="planner-footer">
+      <button class="next-btn" [disabled]="!canProceed()" (click)="next()">
+        {{ step === 3 ? 'Построить маршрут' : 'Далее' }}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+  }
+</div>

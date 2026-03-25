@@ -1,0 +1,70 @@
+/* ===== iOS 18 Glassmorphism Bottom Nav ===== */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  height: 72px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 200;
+  background: var(--nav-bg);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-top: 1px solid var(--nav-border);
+  box-shadow: 0 -4px 30px var(--shadow-color);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--text-tertiary);
+  flex: 1;
+  padding: 8px 0;
+  transition: color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.tab-icon-wrap {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.tab.active {
+  color: var(--accent-light);
+}
+
+.tab.active .tab-icon-wrap {
+  background: var(--accent-bg);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.25);
+}
+
+.tab.active svg {
+  stroke: url(#grad) #a78bfa;
+  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.5));
+}
+
+.tab-label {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font);
+  letter-spacing: 0.2px;
+}
+
+.tab:active {
+  transform: scale(0.9);
+}

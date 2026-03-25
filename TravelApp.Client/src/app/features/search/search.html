@@ -1,0 +1,59 @@
+<div class="search-page">
+
+  <div class="search-header">
+    <h1>Поиск</h1>
+    <div class="search-input-wrap">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="filter()"
+        placeholder="Город, страна..."
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <div class="tags-row">
+    @for (tag of allTags; track tag) {
+      <button
+        class="tag-btn"
+        [class.active]="selectedTag === tag"
+        (click)="selectTag(tag)">
+        {{ tag }}
+      </button>
+    }
+  </div>
+
+  @if (filteredCities.length === 0) {
+    <div class="empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3; margin-bottom: 12px;">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <p>Ничего не найдено</p>
+    </div>
+  }
+
+  <div class="cities-grid">
+    @for (city of filteredCities; track city.id; let i = $index) {
+      <div class="city-card" (click)="openCity(city.id)" [style.animation-delay]="i * 0.05 + 's'">
+        <div class="card-image" [style.background-image]="'url(' + getPhotoUrl(city) + ')'">
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <span class="card-rating">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#fbbf24" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {{ city.rating }}
+            </span>
+            <h3 class="card-title">{{ city.name }}</h3>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+</div>
