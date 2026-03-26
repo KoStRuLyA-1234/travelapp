@@ -1,14 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <title>TravelApp</title>
   <base href="/">
+
+  <!-- Viewport: cover for iPhone notch/safe-area -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Theme color (browser chrome, Android splash) -->
+  <meta name="theme-color" content="#7c3aed">
+
+  <!-- Android Chrome standalone -->
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- iOS Safari standalone (no browser chrome) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TravelApp">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Apple touch icon (used when pinned to iOS home screen) -->
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png">
+
+  <!-- iOS splash screen colour -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Yandex Maps -->
   <script src="https://api-maps.yandex.ru/2.1/?apikey=4f6febd0-2fac-4c53-9994-8103f791561e&lang=ru_RU&load=package.full" type="text/javascript"></script>
 </head>
 <body>

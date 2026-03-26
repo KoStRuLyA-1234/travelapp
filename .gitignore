@@ -3,6 +3,10 @@
 **/.vs/
 **/.vscode/
 
+# Environment secrets — never commit
+.env
+**/.env
+
 **/bin/
 **/obj/
 

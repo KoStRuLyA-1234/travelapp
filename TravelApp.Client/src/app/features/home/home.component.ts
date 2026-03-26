@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit {
   savedIds: number[] = [];
   user: any = null;
   weekendTips = '';
+  weekendError = '';
   isLoadingTips = false;
   showWeekend = false;
   isDark = false;
@@ -54,24 +55,20 @@ export class HomeComponent implements OnInit {
     this.cities.forEach(city => {
       if (!city.imageUrl || !city.imageUrl.startsWith('http')) {
         this.cityService.getCityPhoto(city.id).subscribe({
-          next: (r) => {
-            if (r.url) city.imageUrl = r.url;
-          }
+          next: (r) => { if (r.url) city.imageUrl = r.url; }
         });
       }
     });
   }
 
   getPhotoUrl(city: City): string {
-    if (city.imageUrl && city.imageUrl.startsWith('http')) {
-      return city.imageUrl;
-    }
+    if (city.imageUrl && city.imageUrl.startsWith('http')) return city.imageUrl;
     return '';
   }
 
   toggleWeekend() {
     this.showWeekend = !this.showWeekend;
-    if (this.showWeekend && !this.weekendTips && this.user?.homeCity) {
+    if (this.showWeekend && !this.weekendTips && !this.weekendError && this.user?.homeCity) {
       this.loadWeekendTips();
     }
   }
@@ -83,13 +80,26 @@ export class HomeComponent implements OnInit {
   }
 
   loadWeekendTips() {
+    if (!navigator.onLine) {
+      this.weekendError = 'Рекомендации недоступны без интернета.';
+      return;
+    }
     this.isLoadingTips = true;
+    this.weekendError  = '';
     this.guide.ask(
       this.user.homeCity,
       `Я живу в ${this.user.homeCity}. Предложи 3 места куда съездить на выходных. Для каждого — расстояние и одна причина. Кратко.`
     ).subscribe({
-      next: (r) => { this.weekendTips = r.answer; this.isLoadingTips = false; },
-      error: () => { this.isLoadingTips = false; }
+      next: (r) => {
+        this.weekendTips   = r.answer;
+        this.isLoadingTips = false;
+      },
+      error: (err) => {
+        this.weekendError  = err?.type === 'timeout'
+          ? 'Запрос занял слишком много времени. Попробуй ещё раз.'
+          : 'Не удалось получить рекомендации. Попробуй позже.';
+        this.isLoadingTips = false;
+      }
     });
   }
 
@@ -98,10 +108,37 @@ export class HomeComponent implements OnInit {
     return city.tags.toString().split(',').slice(0, 3);
   }
 
+  // Converts AI markdown response to readable HTML (same logic as city-detail)
   formatTips(text: string): string {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br>');
+    if (!text) return '';
+
+    let result = text;
+
+    // Fix missing space after sentence-ending punctuation before a capital letter
+    result = result.replace(/([.!?])([А-ЯЁA-Z])/g, '$1 $2');
+
+    // Bold: **text**
+    result = result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Italic: *text*
+    result = result.replace(/(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+
+    // Bullet list items: "- " or "• "
+    result = result.replace(/^[-•]\s+(.+)$/gm, '• $1');
+
+    // Numbered list items: "1. "
+    result = result.replace(/^(\d+)\.\s+(.+)$/gm, '$1. $2');
+
+    // Normalize multiple blank lines
+    result = result.replace(/\n{3,}/g, '\n\n');
+
+    // Double newline → paragraph break
+    result = result.replace(/\n\n/g, '<br><br>');
+
+    // Single newline → line break
+    result = result.replace(/\n/g, '<br>');
+
+    return result.trim();
   }
 
   loadSaved() {
@@ -123,7 +160,5 @@ export class HomeComponent implements OnInit {
     localStorage.setItem('savedCities', JSON.stringify(this.savedIds));
   }
 
-  openCity(id: number) {
-  this.router.navigate(['/cities', id]);
-  }
+  openCity(id: number) { this.router.navigate(['/cities', id]); }
 }

@@ -1,0 +1,47 @@
+{
+  "name": "TravelApp — Города России",
+  "short_name": "TravelApp",
+  "description": "Исследуй города России с AI-гидом и персональными маршрутами",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#7c3aed",
+  "background_color": "#0d0d1a",
+  "categories": ["travel", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Поиск городов",
+      "short_name": "Поиск",
+      "url": "/search",
+      "description": "Найти город для путешествия"
+    },
+    {
+      "name": "Избранное",
+      "short_name": "Избранное",
+      "url": "/saved",
+      "description": "Сохранённые города"
+    }
+  ]
+}

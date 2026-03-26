@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Rounded square background — matches app purple palette -->
+  <rect width="512" height="512" rx="112" fill="#7c3aed"/>
+  <!-- Subtle inner glow -->
+  <rect x="2" y="2" width="508" height="508" rx="111" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+  <!-- Paper-plane / send icon (same as the one used throughout the app UI) -->
+  <!-- Original SVG points: 3,11 22,2 13,21 11,13 3,11 — scaled ×12 and centred in 512×512 -->
+  <polygon
+    points="142,250 370,142 262,370 238,274 142,250"
+    fill="white"
+    opacity="0.95"
+  />
+  <!-- Subtle accent dot -->
+  <circle cx="370" cy="142" r="14" fill="#c4b5fd" opacity="0.7"/>
+</svg>

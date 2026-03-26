@@ -181,7 +181,7 @@
         </div>
       }
 
-      @if (!isGenerating && generatedRoute) {
+      @if (!isGenerating && showResult) {
         <div class="route-result">
           <div class="route-header">
             <div class="route-header-icon">
@@ -227,11 +227,10 @@
                 </div>
               }
             </div>
-          } @else {
+          } @else if (routeError) {
             <div class="day-block">
               <div class="place-info">
-                <span class="place-name">Маршрут не удалось распарсить полностью</span>
-                <p class="place-tip" [innerHTML]="formatRoute(generatedRoute)"></p>
+                <span class="place-name">{{ routeError }}</span>
               </div>
             </div>
           }

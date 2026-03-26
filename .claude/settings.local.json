@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"localhost\\\\|apiUrl\\\\|http\\\\.post\\\\|http\\\\.get\" c:/Users/Юрий/source/repos/TRAVELAPP/TravelApp.Client/src/app/features --include=*.ts)",
+      "Bash(find c:/Users/Юрий/source/repos/TRAVELAPP/TravelApp.Client/src/app/features -name *.html -o -name *.css)"
+    ]
+  }
+}

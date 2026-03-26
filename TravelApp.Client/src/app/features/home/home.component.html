@@ -30,6 +30,12 @@
     </div>
   }
 
+  @if (showWeekend && weekendError) {
+    <div class="weekend-panel">
+      <div class="tips-text">{{ weekendError }}</div>
+    </div>
+  }
+
   @if (showWeekend && isLoadingTips) {
     <div class="weekend-panel">
       <div class="tips-loading">

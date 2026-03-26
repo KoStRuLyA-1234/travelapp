@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 export interface AuthRequest {
   email: string;
@@ -22,7 +23,7 @@ export interface AuthResponse {
 })
 export class Auth {
 
-  private apiUrl = 'https://localhost:7096/api/auth';
+  private apiUrl = `${environment.apiUrl}/api/auth`;
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   isLoggedIn$ = this.isLoggedInSubject.asObservable();

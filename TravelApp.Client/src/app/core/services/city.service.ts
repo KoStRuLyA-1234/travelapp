@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { City } from '../models/city.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CityService {
 
-  private apiUrl = 'https://localhost:7096/api/cities';
+  private apiUrl = `${environment.apiUrl}/api/cities`;
 
   constructor(private http: HttpClient) {}
 
@@ -21,6 +22,6 @@ export class CityService {
   }
 
   getCityPhoto(id: number): Observable<{url: string}> {
-  return this.http.get<{url: string}>(`${this.apiUrl}/${id}/photo`);
-  } 
+    return this.http.get<{url: string}>(`${this.apiUrl}/${id}/photo`);
+  }
 }

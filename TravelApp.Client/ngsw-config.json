@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+
+  "assetGroups": [
+    {
+      "name": "app-shell",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "icons-fonts",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/icons/**",
+          "/*.(svg|png|ico|woff|woff2|ttf|otf)"
+        ]
+      }
+    }
+  ],
+
+  "dataGroups": [
+    {
+      "name": "cities-list",
+      "urls": ["/api/cities"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 10,
+        "maxAge": "1d",
+        "timeout": "8s"
+      }
+    },
+    {
+      "name": "city-detail",
+      "urls": ["/api/cities/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 100,
+        "maxAge": "1d",
+        "timeout": "8s"
+      }
+    },
+    {
+      "name": "city-images-wikipedia",
+      "urls": [
+        "https://upload.wikimedia.org/**",
+        "https://commons.wikimedia.org/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 60,
+        "maxAge": "7d"
+      }
+    }
+  ]
+}
