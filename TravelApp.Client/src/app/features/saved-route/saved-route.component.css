@@ -1,0 +1,174 @@
+/* =============================================================
+   Saved-route page — map on top, AI text + day-by-day list below.
+   Inherits the global @media(min-width:900px) → 1100px wrapper rule.
+   ============================================================= */
+
+:host { display: block; font-family: var(--font); }
+
+.saved-route-page {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px calc(env(safe-area-inset-bottom, 0px) + 96px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Header with back btn + title ── */
+.sr-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: max(env(safe-area-inset-top, 12px), 12px) 0 12px;
+  background: linear-gradient(180deg, var(--bg-primary) 80%, transparent);
+}
+.sr-back {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.sr-back:active { transform: scale(0.92); }
+.sr-head-info h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.sr-head-info small { color: var(--text-tertiary); font-size: 12px; }
+
+.sr-state {
+  text-align: center;
+  color: var(--text-tertiary);
+  padding: 32px 16px;
+}
+.sr-state.error { color: #fca5a5; }
+
+/* ── Map ── */
+.sr-map {
+  width: 100%;
+  height: 360px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+/* ── Tag chips ── */
+.sr-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.sr-tag-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(110, 193, 212, 0.14);
+  color: var(--accent-light);
+}
+
+/* ── AI summary block ── */
+.sr-summary {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+.sr-summary h2 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-light);
+}
+.sr-summary p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.sr-summary p:last-child { margin-bottom: 0; }
+
+/* ── Day list ── */
+.sr-days { display: flex; flex-direction: column; gap: 14px; }
+.sr-day {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+.sr-day h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.sr-stops {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sr-stops li {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg-card-hover);
+}
+.sr-stop-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.sr-stop-num {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  color: #fff;
+  flex-shrink: 0;
+}
+.sr-stop-time {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.sr-stop-tip {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+/* Laptop widening (matches the global rule). */
+@media (min-width: 900px) {
+  .saved-route-page { max-width: 1100px; }
+  .sr-map { height: 460px; }
+}
+
+/* Admin "view any user's route" banner */
+.sr-admin-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 198, 87, 0.10);
+  border: 1px solid rgba(255, 198, 87, 0.32);
+  color: #ffc657;
+  font-size: 12px;
+  font-weight: 600;
+}

@@ -1,0 +1,54 @@
+-- Backfill latitude/longitude for the 50 cities currently in the DB.
+-- Coordinates are city-centre values (Wikipedia / Yandex Maps).
+-- Idempotent: only updates rows where Latitude IS NULL.
+
+UPDATE "Cities" SET "Latitude" = 64.5401, "Longitude" =  40.5433 WHERE "Name" = 'Архангельск'      AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 46.3479, "Longitude" =  48.0336 WHERE "Name" = 'Астрахань'         AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 44.7517, "Longitude" =  33.8575 WHERE "Name" = 'Бахчисарай'        AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 58.5215, "Longitude" =  31.2755 WHERE "Name" = 'Великий Новгород'  AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 43.1155, "Longitude" = 131.8855 WHERE "Name" = 'Владивосток'       AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.1290, "Longitude" =  40.4070 WHERE "Name" = 'Владимир'           AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 48.7080, "Longitude" =  44.5133 WHERE "Name" = 'Волгоград'          AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 59.2239, "Longitude" =  39.8840 WHERE "Name" = 'Вологда'            AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 42.0678, "Longitude" =  48.2898 WHERE "Name" = 'Дербент'            AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.8389, "Longitude" =  60.6057 WHERE "Name" = 'Екатеринбург'       AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 57.0000, "Longitude" =  40.9739 WHERE "Name" = 'Иваново'            AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 52.2864, "Longitude" = 104.2807 WHERE "Name" = 'Иркутск'            AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 55.7964, "Longitude" =  49.1089 WHERE "Name" = 'Казань'             AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 54.7104, "Longitude" =  20.4522 WHERE "Name" = 'Калининград'        AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 43.9028, "Longitude" =  42.7189 WHERE "Name" = 'Кисловодск'         AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 57.7676, "Longitude" =  40.9269 WHERE "Name" = 'Кострома'           AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 45.0355, "Longitude" =  38.9753 WHERE "Name" = 'Краснодар'          AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.0153, "Longitude" =  92.8932 WHERE "Name" = 'Красноярск'         AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 52.6088, "Longitude" =  39.5994 WHERE "Name" = 'Липецк'             AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 55.7558, "Longitude" =  37.6173 WHERE "Name" = 'Москва'             AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 68.9585, "Longitude" =  33.0827 WHERE "Name" = 'Мурманск'           AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.3269, "Longitude" =  44.0059 WHERE "Name" = 'Нижний Новгород'    AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 55.0084, "Longitude" =  82.9357 WHERE "Name" = 'Новосибирск'        AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 54.9885, "Longitude" =  73.3242 WHERE "Name" = 'Омск'               AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 52.9700, "Longitude" =  36.0697 WHERE "Name" = 'Орёл'               AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 58.0105, "Longitude" =  56.2502 WHERE "Name" = 'Пермь'              AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 61.7849, "Longitude" =  34.3469 WHERE "Name" = 'Петрозаводск'       AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 57.8194, "Longitude" =  28.3326 WHERE "Name" = 'Псков'              AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 44.0486, "Longitude" =  43.0594 WHERE "Name" = 'Пятигорск'          AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 47.2357, "Longitude" =  39.7015 WHERE "Name" = 'Ростов-на-Дону'     AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 54.6269, "Longitude" =  39.6916 WHERE "Name" = 'Рязань'             AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 53.1959, "Longitude" =  50.1003 WHERE "Name" = 'Самара'             AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 59.9311, "Longitude" =  30.3609 WHERE "Name" = 'Санкт-Петербург'    AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 51.5331, "Longitude" =  46.0342 WHERE "Name" = 'Саратов'            AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 44.6166, "Longitude" =  33.5254 WHERE "Name" = 'Севастополь'        AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 54.7826, "Longitude" =  32.0453 WHERE "Name" = 'Смоленск'           AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 43.5855, "Longitude" =  39.7231 WHERE "Name" = 'Сочи'               AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 44.8492, "Longitude" =  34.9762 WHERE "Name" = 'Судак'              AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.8556, "Longitude" =  41.3833 WHERE "Name" = 'Суздаль'            AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 52.7213, "Longitude" =  41.4521 WHERE "Name" = 'Тамбов'             AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.4847, "Longitude" =  84.9476 WHERE "Name" = 'Томск'              AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 54.1961, "Longitude" =  37.6182 WHERE "Name" = 'Тула'               AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 54.7388, "Longitude" =  55.9721 WHERE "Name" = 'Уфа'                AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 48.4827, "Longitude" = 135.0838 WHERE "Name" = 'Хабаровск'          AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.1322, "Longitude" =  47.2519 WHERE "Name" = 'Чебоксары'          AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 52.0316, "Longitude" = 113.5018 WHERE "Name" = 'Чита'               AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 56.8543, "Longitude" =  41.3872 WHERE "Name" = 'Шуя'                AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 62.0339, "Longitude" = 129.7331 WHERE "Name" = 'Якутск'             AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 44.4952, "Longitude" =  34.1664 WHERE "Name" = 'Ялта'               AND "Latitude" IS NULL;
+UPDATE "Cities" SET "Latitude" = 57.6261, "Longitude" =  39.8845 WHERE "Name" = 'Ярославль'          AND "Latitude" IS NULL;

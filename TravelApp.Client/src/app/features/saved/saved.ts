@@ -12,7 +12,6 @@ import { City } from '../../core/models/city.model';
   styleUrl: './saved.css'
 })
 export class Saved implements OnInit {
-
   savedCities: City[] = [];
   isLoading = true;
 
@@ -22,17 +21,17 @@ export class Saved implements OnInit {
   ) {}
 
   ngOnInit() {
-    const saved = localStorage.getItem('savedCities');
-    const savedIds: number[] = saved ? JSON.parse(saved) : [];
+    this.loadSaved();
+  }
 
-    if (savedIds.length === 0) {
-      this.isLoading = false;
-      return;
-    }
-
-    this.cityService.getCities().subscribe({
+  loadSaved() {
+    this.cityService.getFavoriteCities().subscribe({
       next: (data) => {
-        this.savedCities = data.filter(c => savedIds.includes(c.id));
+        this.savedCities = data;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.savedCities = [];
         this.isLoading = false;
       }
     });
@@ -44,17 +43,16 @@ export class Saved implements OnInit {
 
   remove(event: Event, id: number) {
     event.stopPropagation();
-    const saved = localStorage.getItem('savedCities');
-    let ids: number[] = saved ? JSON.parse(saved) : [];
-    ids = ids.filter(i => i !== id);
-    localStorage.setItem('savedCities', JSON.stringify(ids));
+    const previous = this.savedCities;
     this.savedCities = this.savedCities.filter(c => c.id !== id);
+
+    this.cityService.removeFavorite(id).subscribe({
+      error: () => this.savedCities = previous
+    });
   }
 
   getPhotoUrl(city: City): string {
-    if (city.imageUrl && city.imageUrl.startsWith('http')) {
-      return city.imageUrl;
-    }
+    if (city.imageUrl && city.imageUrl.startsWith('http')) return city.imageUrl;
     const query = city.searchQuery || city.name;
     return `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}`;
   }

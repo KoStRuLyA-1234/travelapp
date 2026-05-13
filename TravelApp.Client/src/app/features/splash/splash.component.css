@@ -1,0 +1,234 @@
+/* =============================================================
+   Splash / Hero screen
+   - :host explicitly fills the viewport so the route-animation
+     wrapper can't collapse it to 0px (root cause of the black screen).
+   - All entrance animations are pure CSS — no Angular animation
+     trigger gates, so content is always visible even if @angular/animations
+     fails to bootstrap.
+   - Notch-safe: uses env(safe-area-inset-*) for iPhone 15.
+   ============================================================= */
+
+:host {
+  display: block;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.splash {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Deep gradient — visible even before particles render */
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(110, 193, 212, 0.32), transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(255, 198, 87, 0.16), transparent 55%),
+    linear-gradient(135deg, #0b0f14 0%, #121821 50%, #080f16 100%);
+  color: #fff;
+  overflow: hidden;
+  padding-top:    env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.particles-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.splash-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 28px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ---------- Logo ---------- */
+
+.logo-wrap {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: logoEnter 700ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.logo-glow {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(110, 193, 212, 0.58) 0%, transparent 70%);
+  filter: blur(16px);
+  animation: pulseGlow 2.4s ease-in-out infinite;
+}
+
+.logo-ring {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2a6f85 0%, #6ec1d4 70%, #ffc657 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 18px 40px -12px rgba(110, 193, 212, 0.55),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.25),
+    inset 0 3px 8px rgba(255, 255, 255, 0.2);
+  animation: bounce 3s ease-in-out infinite;
+}
+
+.logo-svg { color: #fff; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)); }
+
+/* ---------- Text ---------- */
+
+.splash-title {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  line-height: 1;
+  animation: slideUp 600ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.title-travel {
+  background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title-app {
+  background: linear-gradient(135deg, #6ec1d4 0%, #ffc657 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.splash-subtitle {
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0 0 40px;
+  animation: slideUp 600ms 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ---------- CTA Button ---------- */
+
+.cta-btn {
+  /* iPhone 15 touch target: 48px+ */
+  min-height: 56px;
+  padding: 0 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 14px 30px -8px rgba(110, 193, 212, 0.52),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.18),
+    inset 0 2px 6px rgba(255, 255, 255, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  animation: ctaEnter 600ms 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.cta-btn:hover { transform: translateY(-2px); }
+.cta-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 6px 16px -4px rgba(110, 193, 212, 0.45);
+}
+
+.cta-icon { transition: transform 200ms ease; }
+.cta-btn:hover .cta-icon { transform: translateX(4px); }
+
+/* ---------- Pagination dots ---------- */
+
+.splash-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 36px;
+  animation: slideUp 600ms 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 280ms ease;
+}
+.dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #6ec1d4, #ffc657);
+}
+
+/* ---------- Keyframes ---------- */
+
+@keyframes logoEnter {
+  0%   { opacity: 0; transform: scale(0.5) rotate(-30deg); }
+  60%  { opacity: 1; transform: scale(1.08) rotate(8deg); }
+  100% { opacity: 1; transform: scale(1)    rotate(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.12); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ctaEnter {
+  0%   { opacity: 0; transform: scale(0.7) translateY(20px); }
+  100% { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+/* Respect users who don't want motion */
+@media (prefers-reduced-motion: reduce) {
+  .logo-wrap, .splash-title, .splash-subtitle,
+  .cta-btn, .splash-dots, .logo-glow, .logo-ring {
+    animation: none !important;
+  }
+}
+
+/* iPhone 15 portrait tightening */
+@media (max-width: 390px) {
+  .splash-title    { font-size: 38px; }
+  .splash-subtitle { font-size: 14px; }
+  .logo-wrap       { width: 112px; height: 112px; margin-bottom: 26px; }
+  .logo-ring       { width: 96px;  height: 96px;  }
+}

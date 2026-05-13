@@ -2,6 +2,12 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    ports:
+      # Host-side 5433 → container 5432 to avoid the native Windows
+      # PostgreSQL service that already squats on 5432. Container-internal
+      # services (e.g. backend below) keep using port 5432 over the
+      # docker network — this remap only affects host access.
+      - "5433:5432"
     environment:
       POSTGRES_DB: travelappdb
       POSTGRES_USER: postgres
@@ -27,6 +33,10 @@ services:
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=travelappdb;Username=postgres;Password=${POSTGRES_PASSWORD:-Admin2025!}"
       OpenRouter__ApiKey: ${OPENROUTER_API_KEY}
       Jwt__Key: ${JWT_KEY:-TravelAppSuperSecretKey2025XYZ123456}
+      # Local seed user — auto-created on startup if missing.
+      Seed__TestUserEmail:    ${SEED_TEST_USER_EMAIL:-testlocal@example.com}
+      Seed__TestUserPassword: ${SEED_TEST_USER_PASSWORD:-Test1234}
+      Seed__TestUserName:     ${SEED_TEST_USER_NAME:-Тестовый Локальный}
     depends_on:
       db:
         condition: service_healthy

@@ -22,13 +22,26 @@ namespace TravelApp.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TravelApp.Api.Models.City", b =>
+            modelBuilder.Entity("TravelApp.Api.Models.Attraction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("AverageVisitMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -37,6 +50,63 @@ namespace TravelApp.Api.Migrations
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsFree")
+                        .HasColumnType("boolean");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PriceLevel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId", "Type");
+
+                    b.ToTable("Attractions");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.City", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AverageTripDays")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BestSeason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -48,6 +118,10 @@ namespace TravelApp.Api.Migrations
                     b.Property<double>("Rating")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("Region")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("SearchQuery")
                         .IsRequired()
                         .HasColumnType("text");
@@ -58,7 +132,226 @@ namespace TravelApp.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name");
+
+                    b.HasIndex("Region");
+
                     b.ToTable("Cities");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.Favorite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("UserId", "CityId")
+                        .IsUnique();
+
+                    b.ToTable("Favorites");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.LikedRoute", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TravelRouteId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelRouteId");
+
+                    b.HasIndex("UserId", "TravelRouteId")
+                        .IsUnique();
+
+                    b.ToTable("LikedRoutes");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AttractionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttractionId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("CityId", "CreatedAt");
+
+                    b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.RouteStop", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AttractionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DurationLabel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlaceName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("StopOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TravelRouteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttractionId");
+
+                    b.HasIndex("TravelRouteId", "DayNumber", "StopOrder");
+
+                    b.ToTable("RouteStops");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.TravelRoute", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AiSummary")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("EstimatedBudget")
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<bool>("IsAiGenerated")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsGenerated")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TravelRoutes");
                 });
 
             modelBuilder.Entity("TravelApp.Api.Models.User", b =>
@@ -68,6 +361,17 @@ namespace TravelApp.Api.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AnimationsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("AvatarUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -88,9 +392,172 @@ namespace TravelApp.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ResetTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.Attraction", b =>
+                {
+                    b.HasOne("TravelApp.Api.Models.City", "City")
+                        .WithMany("Attractions")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.Favorite", b =>
+                {
+                    b.HasOne("TravelApp.Api.Models.City", "City")
+                        .WithMany("Favorites")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TravelApp.Api.Models.User", "User")
+                        .WithMany("Favorites")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.LikedRoute", b =>
+                {
+                    b.HasOne("TravelApp.Api.Models.TravelRoute", "TravelRoute")
+                        .WithMany()
+                        .HasForeignKey("TravelRouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TravelApp.Api.Models.User", "User")
+                        .WithMany("LikedRoutes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelRoute");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.Review", b =>
+                {
+                    b.HasOne("TravelApp.Api.Models.Attraction", "Attraction")
+                        .WithMany("Reviews")
+                        .HasForeignKey("AttractionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TravelApp.Api.Models.City", "City")
+                        .WithMany("Reviews")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TravelApp.Api.Models.User", "User")
+                        .WithMany("Reviews")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attraction");
+
+                    b.Navigation("City");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.RouteStop", b =>
+                {
+                    b.HasOne("TravelApp.Api.Models.Attraction", "Attraction")
+                        .WithMany("RouteStops")
+                        .HasForeignKey("AttractionId");
+
+                    b.HasOne("TravelApp.Api.Models.TravelRoute", "TravelRoute")
+                        .WithMany("Stops")
+                        .HasForeignKey("TravelRouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attraction");
+
+                    b.Navigation("TravelRoute");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.TravelRoute", b =>
+                {
+                    b.HasOne("TravelApp.Api.Models.City", "City")
+                        .WithMany("Routes")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TravelApp.Api.Models.User", "User")
+                        .WithMany("Routes")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("City");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.Attraction", b =>
+                {
+                    b.Navigation("Reviews");
+
+                    b.Navigation("RouteStops");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.City", b =>
+                {
+                    b.Navigation("Attractions");
+
+                    b.Navigation("Favorites");
+
+                    b.Navigation("Reviews");
+
+                    b.Navigation("Routes");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.TravelRoute", b =>
+                {
+                    b.Navigation("Stops");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Models.User", b =>
+                {
+                    b.Navigation("Favorites");
+
+                    b.Navigation("LikedRoutes");
+
+                    b.Navigation("Reviews");
+
+                    b.Navigation("Routes");
                 });
 #pragma warning restore 612, 618
         }

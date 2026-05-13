@@ -1,0 +1,134 @@
+<div class="admin-page">
+  <header class="admin-header">
+    <button class="back-btn" (click)="goBack()" aria-label="Назад">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <h1>Админ-панель</h1>
+  </header>
+
+  <div class="admin-tabs">
+    <button class="admin-tab" [class.active]="activeTab === 'users'"
+            (click)="activeTab = 'users'">
+      Пользователи
+      @if (users.length) { <span class="tab-count">{{ users.length }}</span> }
+    </button>
+    <button class="admin-tab" [class.active]="activeTab === 'routes'"
+            (click)="activeTab = 'routes'">
+      Маршруты
+      @if (routes.length) { <span class="tab-count">{{ routes.length }}</span> }
+    </button>
+  </div>
+
+  <!-- ===== Users tab ===== -->
+  @if (activeTab === 'users') {
+    <section class="admin-section">
+      <div class="admin-filters">
+        <input class="admin-input" type="search" placeholder="Поиск по email"
+               [(ngModel)]="emailFilter" (keyup.enter)="loadUsers()" />
+        <button class="admin-btn primary" (click)="loadUsers()" [disabled]="isLoadingUsers">
+          {{ isLoadingUsers ? '…' : 'Найти' }}
+        </button>
+      </div>
+
+      @if (usersError) { <p class="admin-empty error">{{ usersError }}</p> }
+      @else if (isLoadingUsers) { <p class="admin-empty">Загружаем…</p> }
+      @else if (!users.length) { <p class="admin-empty">Никого не найдено.</p> }
+      @else {
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Имя</th>
+              <th>Роль</th>
+              <th>Город</th>
+              <th>Маршрутов</th>
+              <th>Создан</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of users; track u.id) {
+              <tr>
+                <td>{{ u.email }}</td>
+                <td>{{ u.name }}</td>
+                <td><span class="admin-role" [class.is-admin]="u.role === 'Admin'">{{ u.role }}</span></td>
+                <td>{{ u.homeCity || '—' }}</td>
+                <td>
+                  <button class="link-btn" (click)="filterByUser(u)" [disabled]="!u.routeCount">{{ u.routeCount }}</button>
+                </td>
+                <td>{{ u.createdAt | date:'d MMM y' }}</td>
+                <td>
+                  <button class="admin-btn danger small" (click)="deleteUser(u)">Удалить</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  }
+
+  <!-- ===== Routes tab ===== -->
+  @if (activeTab === 'routes') {
+    <section class="admin-section">
+      <div class="admin-filters">
+        <input class="admin-input" type="number" placeholder="ID пользователя"
+               [(ngModel)]="routeUserId" />
+        <input class="admin-input" type="text" placeholder="Тег"
+               [(ngModel)]="routeTag" />
+        <input class="admin-input" type="date" [(ngModel)]="routeFrom" />
+        <input class="admin-input" type="date" [(ngModel)]="routeTo" />
+        <button class="admin-btn primary" (click)="loadRoutes()" [disabled]="isLoadingRoutes">
+          {{ isLoadingRoutes ? '…' : 'Применить' }}
+        </button>
+        <button class="admin-btn ghost" (click)="resetRouteFilters()">Сбросить</button>
+      </div>
+
+      @if (routesError) { <p class="admin-empty error">{{ routesError }}</p> }
+      @else if (isLoadingRoutes) { <p class="admin-empty">Загружаем…</p> }
+      @else if (!routes.length) { <p class="admin-empty">Маршрутов нет.</p> }
+      @else {
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Город</th>
+              <th>Пользователь</th>
+              <th>Дн</th>
+              <th>Точек</th>
+              <th>Теги</th>
+              <th>Создан</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of routes; track r.id) {
+              <tr>
+                <td>{{ r.title }}</td>
+                <td>{{ r.cityName }}</td>
+                <td>{{ r.userEmail || '—' }}</td>
+                <td>{{ r.durationDays }}</td>
+                <td>{{ r.stopCount }}</td>
+                <td>
+                  <div class="admin-route-tags">
+                    @for (t of routeTags(r); track t) { <span class="admin-tag">{{ t }}</span> }
+                  </div>
+                </td>
+                <td>{{ r.createdAt | date:'d MMM y' }}</td>
+                <td>
+                  <div class="admin-row-actions">
+                    <button class="admin-btn ghost small" (click)="openRoute(r)">Открыть</button>
+                    <button class="admin-btn danger small" (click)="deleteRoute(r, $event)">Удалить</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  }
+</div>

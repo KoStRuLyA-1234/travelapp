@@ -1,0 +1,90 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (60ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_class c
+    JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND
+          c.relname='__EFMigrationsHistory'
+)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_class c
+    JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND
+          c.relname='__EFMigrationsHistory'
+)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_class c
+    JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND
+          c.relname='__EFMigrationsHistory'
+)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (29ms) [Parameters=[@__email_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS u
+          WHERE u."Email" = @__email_0)
+info: Startup[0]
+      DbSeeder: user testlocal@example.com already exists, nothing to do.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5153
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\Юрий\source\repos\TRAVELAPP\TravelApp.Api\TravelApp.Api
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__email_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."AnimationsEnabled", u."AvatarUrl", u."Bio", u."CreatedAt", u."Email", u."HomeCity", u."Name", u."PasswordHash", u."ResetToken", u."ResetTokenExpiry", u."Theme", u."UpdatedAt"
+      FROM "Users" AS u
+      WHERE u."Email" = @__email_0
+      LIMIT 1
+info: TravelApp.Api.Controllers.AuthController[0]
+      Login OK — testlocal@example.com (id 2).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__email_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS u
+          WHERE u."Email" = @__email_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@p0='?' (DbType = Boolean), @p1='?', @p2='?', @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?', @p7='?', @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("AnimationsEnabled", "AvatarUrl", "Bio", "CreatedAt", "Email", "HomeCity", "Name", "PasswordHash", "ResetToken", "ResetTokenExpiry", "Theme", "UpdatedAt")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+info: TravelApp.Api.Controllers.AuthController[0]
+      Register OK — created user verify-local-20260505235430@example.com (id 5).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."Name", c."Description", c."ImageUrl", EXISTS (
+          SELECT 1
+          FROM "Reviews" AS r
+          WHERE c."Id" = r."CityId"), (
+          SELECT avg(r0."Rating"::double precision)
+          FROM "Reviews" AS r0
+          WHERE c."Id" = r0."CityId"), c."Rating", c."Population", c."Tags", c."SearchQuery", c."Region", c."Latitude", c."Longitude", c."BestSeason", c."AverageTripDays", (
+          SELECT count(*)::int
+          FROM "Reviews" AS r1
+          WHERE c."Id" = r1."CityId"), (
+          SELECT count(*)::int
+          FROM "Attractions" AS a
+          WHERE c."Id" = a."CityId")
+      FROM "Cities" AS c
+      ORDER BY c."Rating" DESC, c."Name"

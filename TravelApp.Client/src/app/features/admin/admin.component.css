@@ -1,0 +1,204 @@
+/* =============================================================
+   Admin panel — desktop-first table layout. Uses the global
+   1100px laptop wrapper from styles.css.
+   ============================================================= */
+:host { display: block; font-family: var(--font); }
+
+.admin-page {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 96px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.admin-header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.back-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.back-btn:active { transform: scale(0.92); }
+
+/* ── Tabs ── */
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-color);
+}
+.admin-tab {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+  transition: color 0.18s ease;
+}
+.admin-tab.active { color: var(--accent-light); }
+.admin-tab.active::after {
+  content: '';
+  position: absolute;
+  left: 18%; right: 18%; bottom: -1px;
+  height: 2px;
+  background: var(--accent-gradient);
+  border-radius: 2px;
+}
+.admin-tab .tab-count {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(110, 193, 212, 0.18);
+  color: var(--accent-light);
+}
+
+/* ── Filters bar ── */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.admin-input {
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  flex: 1 1 140px;
+}
+.admin-input:focus { border-color: rgba(110, 193, 212, 0.6); }
+
+.admin-btn {
+  min-height: 38px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-btn:active { transform: scale(0.96); }
+.admin-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.admin-btn.primary { background: var(--accent-gradient); color: #fff; }
+.admin-btn.ghost   { background: transparent; color: var(--text-secondary); border-color: var(--border-color); }
+.admin-btn.danger  { background: rgba(239, 68, 68, 0.14); color: #f87171; border-color: rgba(239, 68, 68, 0.32); }
+.admin-btn.small   { min-height: 30px; padding: 4px 10px; font-size: 12px; }
+
+.admin-empty {
+  text-align: center;
+  color: var(--text-tertiary);
+  padding: 24px 8px;
+  margin: 0;
+}
+.admin-empty.error { color: #fca5a5; }
+
+/* ── Table ── */
+.admin-section { display: flex; flex-direction: column; gap: 10px; }
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--bg-card);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+.admin-table th, .admin-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+.admin-table thead th {
+  background: var(--bg-card-hover);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.admin-table tbody tr:last-child td { border-bottom: 0; }
+.admin-table tbody tr:hover { background: var(--bg-card-hover); }
+
+.admin-role {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-tertiary);
+}
+.admin-role.is-admin {
+  background: rgba(255, 198, 87, 0.18);
+  color: #ffc657;
+}
+
+.link-btn {
+  background: transparent;
+  border: 0;
+  color: var(--accent-light);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+.link-btn:disabled { color: var(--text-tertiary); cursor: default; }
+
+.admin-route-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.admin-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(110, 193, 212, 0.14);
+  color: var(--accent-light);
+}
+
+/* Laptop layout — wider container, same as the rest of the app. */
+@media (min-width: 900px) {
+  .admin-page { max-width: 1100px; }
+}
+
+/* Stack the per-row "Открыть / Удалить" buttons in the routes table. */
+.admin-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

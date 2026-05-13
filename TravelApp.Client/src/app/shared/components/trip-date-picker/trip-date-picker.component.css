@@ -1,0 +1,152 @@
+/* =============================================================
+   Trip date picker — compact mini calendar.
+   Uses global palette vars so it adapts to dark/light themes.
+   ============================================================= */
+
+:host { display: block; font-family: var(--font); }
+
+.picker {
+  width: 100%;
+  max-width: 320px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--text-primary);
+}
+
+/* ── Header ───────────────────────────────────────────── */
+.header {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.nav-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.nav-btn:hover  { background: var(--bg-card-hover); color: var(--text-primary); }
+.nav-btn:active { transform: scale(0.92); }
+
+.month-label {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: capitalize;
+}
+
+/* ── Weekday header row ──────────────────────────────── */
+.week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.week-cell {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 4px 0;
+}
+
+/* ── Day grid ───────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day {
+  position: relative;
+  /* Touch target — slightly under the 44px Apple guideline because
+     we're inside a confined picker, but still finger-friendly. */
+  min-height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.day:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+}
+
+.day:active:not(:disabled) { transform: scale(0.92); }
+
+.day.outside { color: var(--text-muted); cursor: default; }
+.day.past    { color: var(--text-muted); cursor: not-allowed; opacity: 0.55; }
+
+/* Today — subtle ring, not a filled state */
+.day.today {
+  font-weight: 700;
+  color: var(--accent-light);
+}
+.day.today::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 50%;
+  width: 4px; height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--accent-light);
+}
+
+/* In-season — muted accent dot bg, before the user picks */
+.day.in-season:not(.selected) {
+  background: var(--accent-bg);
+  color: var(--text-primary);
+}
+
+/* Selected — fully filled */
+.day.selected {
+  background: var(--accent-gradient);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px -2px rgba(110, 193, 212, 0.35);
+}
+
+/* Hide today dot when selected (would conflict visually) */
+.day.today.selected::after { display: none; }
+
+/* ── Off-season hint chip ──────────────────────────── */
+.hint {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 198, 87, 0.12);
+  border: 1px solid rgba(255, 198, 87, 0.28);
+  color: #fde6a8;
+  font-size: 12px;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.hint svg { flex-shrink: 0; margin-top: 1px; color: #ffc657; }
+
+@media (prefers-reduced-motion: reduce) {
+  .day, .nav-btn { transition: none; }
+}

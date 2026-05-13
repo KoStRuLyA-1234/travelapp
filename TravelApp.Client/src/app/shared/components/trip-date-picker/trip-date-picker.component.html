@@ -1,0 +1,57 @@
+<div class="picker">
+  <!-- Month header with prev/next -->
+  <div class="header">
+    <button type="button" class="nav-btn" (click)="prevMonth()" aria-label="Предыдущий месяц">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <div class="month-label" [@monthSlide]="monthIndex">{{ monthLabel }}</div>
+
+    <button type="button" class="nav-btn" (click)="nextMonth()" aria-label="Следующий месяц">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Weekday row (Monday-first) -->
+  <div class="week-row">
+    @for (w of weekDays; track w) {
+      <div class="week-cell">{{ w }}</div>
+    }
+  </div>
+
+  <!-- 6×7 day grid -->
+  <div class="grid" [@monthSlide]="monthIndex">
+    @for (cell of grid; track cell.date.getTime()) {
+      <button type="button" class="day"
+              [class.outside]="cell.outside"
+              [class.past]="cell.isPast"
+              [class.today]="cell.isToday"
+              [class.selected]="cell.isSelected"
+              [class.in-season]="cell.inSeason && !cell.outside && !cell.isPast"
+              [disabled]="cell.outside || cell.isPast"
+              (click)="pick(cell)"
+              [attr.aria-pressed]="cell.isSelected">
+        {{ cell.day }}
+      </button>
+    }
+  </div>
+
+  <!-- Off-season hint (only when picked day is out of city's best season) -->
+  @if (offSeasonHint) {
+    <div class="hint">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      {{ offSeasonHint }}
+    </div>
+  }
+</div>

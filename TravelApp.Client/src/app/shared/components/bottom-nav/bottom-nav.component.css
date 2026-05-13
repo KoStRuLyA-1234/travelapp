@@ -29,6 +29,7 @@
   color: var(--text-tertiary);
   flex: 1;
   padding: 8px 0;
+  min-height: 64px;
   transition: color 0.3s ease;
   -webkit-tap-highlight-color: transparent;
   position: relative;
@@ -50,12 +51,12 @@
 
 .tab.active .tab-icon-wrap {
   background: var(--accent-bg);
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 0 20px rgba(110, 193, 212, 0.26);
 }
 
 .tab.active svg {
-  stroke: url(#grad) #a78bfa;
-  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.5));
+  stroke: var(--accent-light);
+  filter: drop-shadow(0 0 6px rgba(110, 193, 212, 0.45));
 }
 
 .tab-label {
@@ -67,4 +68,48 @@
 
 .tab:active {
   transform: scale(0.9);
+}
+
+/* ===== Roulette centre tab =====
+   Default: neutral surface — no glow, no gradient.
+   The bright accent gradient only appears on :active (press) or .active
+   (the user is currently on the /roulette route).                       */
+.tab-roulette .roulette-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: none;
+  color: var(--text-secondary);
+  margin-top: -10px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tab-roulette .roulette-wrap svg {
+  stroke: currentColor !important;
+  filter: none !important;
+}
+
+/* Active route — bright gradient state */
+.tab-roulette.active .roulette-wrap {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 28px rgba(110, 193, 212, 0.58);
+  transform: scale(1.08);
+}
+
+/* Press feedback — only while finger/cursor is down */
+.tab-roulette:active .roulette-wrap {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(110, 193, 212, 0.45);
+  transform: scale(0.94);
+}
+
+.tab-roulette .tab-label {
+  margin-top: 4px;
 }

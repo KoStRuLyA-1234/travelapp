@@ -1,0 +1,73 @@
+<div class="saved-route-page">
+  <header class="sr-header">
+    <button class="sr-back" (click)="goBack()" aria-label="Назад">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="sr-head-info">
+      <h1>{{ route$?.title || 'Маршрут' }}</h1>
+      @if (route$) {
+        <small>{{ route$.cityName }} · {{ route$.durationDays }} дн · {{ route$.createdAt | date:'d MMM y' }}</small>
+      }
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <p class="sr-state">Загружаем маршрут…</p>
+  } @else if (errorMsg) {
+    <p class="sr-state error">{{ errorMsg }}</p>
+  } @else if (route$) {
+    @if (isAdminView && ownerLabel) {
+      <div class="sr-admin-banner">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ ownerLabel }}
+      </div>
+    }
+
+    <!-- Yandex map with numbered markers + multi-route -->
+    <div id="saved-route-map" class="sr-map"></div>
+
+    @if (tagList().length) {
+      <div class="sr-tags">
+        @for (t of tagList(); track t) { <span class="sr-tag-chip">{{ t }}</span> }
+      </div>
+    }
+
+    <!-- AI summary, paragraphed -->
+    @if (summaryParagraphs().length) {
+      <section class="sr-summary">
+        <h2>Описание маршрута</h2>
+        @for (p of summaryParagraphs(); track $index) {
+          <p>{{ p }}</p>
+        }
+      </section>
+    }
+
+    <!-- Day-by-day stop list -->
+    <section class="sr-days">
+      @for (day of stopsByDay(); track day.day) {
+        <article class="sr-day">
+          <h3>День {{ day.day }}</h3>
+          <ol class="sr-stops">
+            @for (s of day.stops; track s.order) {
+              <li>
+                <div class="sr-stop-head">
+                  <span class="sr-stop-num">#{{ s.order }}</span>
+                  <strong>{{ s.name }}</strong>
+                  <span class="sr-stop-time">{{ s.time }}{{ s.duration ? ' · ' + s.duration : '' }}</span>
+                </div>
+                @if (s.tip) { <p class="sr-stop-tip">{{ s.tip }}</p> }
+              </li>
+            }
+          </ol>
+        </article>
+      }
+    </section>
+  }
+</div>

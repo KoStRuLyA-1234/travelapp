@@ -511,18 +511,45 @@
   background: var(--accent-bg);
 }
 
-/* ===== Route Actions ===== */
+/* ===== Route Actions =====
+   3 buttons that need to read clearly on a 360px phone AND on desktop.
+   Grid keeps each cell exactly equal width and lets us drop label-text
+   on cramped screens without horizontal scroll. */
 .route-actions {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  align-items: stretch;
 }
 
-.route-actions .retry-btn {
-  flex: 1;
+.route-actions > button {
+  /* Equal-height cells, tap-friendly, prevent text overflow. */
+  min-height: 56px;
+  padding: 10px 8px;
+  font-size: 13px;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  flex-direction: column;   /* icon ABOVE text on narrow screens */
+  gap: 4px;
+}
+
+/* Slightly narrower than mobile-md → drop the inline icons & switch to
+   pure-text labels so the row never wraps on iPhone SE / 360px. */
+@media (max-width: 380px) {
+  .route-actions { gap: 6px; }
+  .route-actions > button { font-size: 12px; padding: 10px 4px; min-height: 52px; }
+  .route-actions > button svg { width: 14px; height: 14px; }
+}
+
+.route-actions .retry-btn,
+.route-actions .save-route-btn,
+.route-actions .pdf-btn {
+  flex: unset;             /* override the old `flex: 1` */
+  width: 100%;
 }
 
 .pdf-btn {
-  flex: 1;
   padding: 14px;
   background: var(--accent-gradient);
   border: none;
@@ -553,4 +580,36 @@
 
 .spin {
   animation: spin 1s linear infinite;
+}
+
+/* ===== Save-route button (sits next to PDF) ===== */
+.save-route-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background: rgba(110, 193, 212, 0.10);
+  color: var(--accent-light);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.save-route-btn:hover  { background: rgba(110, 193, 212, 0.18); }
+.save-route-btn:active { transform: scale(0.97); }
+.save-route-btn:disabled { opacity: 0.6; cursor: wait; }
+.save-route-btn.saved {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+}
+.save-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #fca5a5;
 }

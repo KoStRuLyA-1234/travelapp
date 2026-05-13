@@ -70,8 +70,8 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,6 +85,30 @@
 .back-btn:active {
   transform: scale(0.9);
   background: rgba(255, 255, 255, 0.2);
+}
+
+.favorite-floating {
+  position: absolute;
+  top: max(env(safe-area-inset-top, 16px), 16px);
+  right: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  z-index: 2;
+}
+
+.favorite-floating.active {
+  color: #ff375f;
+  background: rgba(255, 55, 95, 0.16);
 }
 
 .hero-title {
@@ -103,6 +127,12 @@
   margin: 0;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
   letter-spacing: -0.8px;
+}
+
+.hero-title p {
+  color: rgba(255, 255, 255, 0.78);
+  margin: 6px 0 0;
+  font-size: 14px;
 }
 
 /* ===== Content Card ===== */
@@ -183,6 +213,69 @@
   font-weight: 500;
 }
 
+.info-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.info-strip span {
+  background: rgba(20, 184, 166, 0.12);
+  color: #5eead4;
+  border: 1px solid rgba(20, 184, 166, 0.22);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.trip-date-panel {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 12px;
+  align-items: center;
+  background: rgba(18, 38, 51, 0.78);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 24px;
+}
+
+.trip-date-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.trip-date-label {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.trip-date-copy strong {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.trip-date-panel input {
+  min-height: 44px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font: inherit;
+  padding: 0 10px;
+}
+
+.trip-date-panel p {
+  grid-column: 1 / -1;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+}
+
 /* ===== Fact Section ===== */
 .fact-section {
   background: var(--accent-bg);
@@ -231,6 +324,158 @@
   margin-bottom: 24px;
 }
 
+.section-block {
+  margin-bottom: 24px;
+}
+
+.section-block h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 14px;
+}
+
+.attractions-list {
+  display: grid;
+  gap: 10px;
+}
+
+.attraction-item,
+.review-item,
+.review-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.attraction-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.place-type {
+  display: inline-block;
+  color: #5eead4;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.attraction-item h3 {
+  color: var(--text-primary);
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+
+.attraction-item p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0 0 6px;
+}
+
+.attraction-item small {
+  color: var(--text-tertiary);
+}
+
+.visit-time {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.review-form {
+  margin-bottom: 12px;
+}
+
+.rating-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.rating-row button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.rating-row button.active {
+  color: #fbbf24;
+}
+
+.review-form textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  padding: 12px;
+  font: inherit;
+  margin-bottom: 10px;
+}
+
+.submit-review {
+  border: 0;
+  border-radius: 8px;
+  min-height: 44px;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  padding: 11px 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-review:disabled {
+  opacity: 0.55;
+}
+
+.review-error {
+  color: #fca5a5;
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.review-item {
+  margin-bottom: 10px;
+}
+
+.review-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.review-head span {
+  color: #fbbf24;
+}
+
+.review-item p,
+.empty-reviews {
+  color: var(--text-secondary);
+  line-height: 1.55;
+  font-size: 14px;
+  margin: 0;
+}
+
+.delete-review {
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: #f87171;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 .planner-btn {
   width: 100%;
   padding: 16px;
@@ -246,7 +491,8 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+  min-height: 56px;
+  box-shadow: 0 4px 20px rgba(110, 193, 212, 0.3);
   transition: all 0.25s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -258,6 +504,7 @@
 .chat-btn {
   width: 100%;
   padding: 16px;
+  min-height: 56px;
   background: var(--bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -445,8 +692,8 @@
 }
 
 .chat-input button {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   background: var(--accent-gradient);
   color: white;
   border: none;
@@ -457,7 +704,7 @@
   justify-content: center;
   flex-shrink: 0;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 12px rgba(110, 193, 212, 0.3);
 }
 
 .chat-input button:active {
@@ -505,4 +752,14 @@
   z-index: 1 !important;
   border-radius: 22px;
   border: 1px solid var(--border-color);
+}
+
+@media (max-width: 380px) {
+  .trip-date-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-date-panel input {
+    width: 100%;
+  }
 }

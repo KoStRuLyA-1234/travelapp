@@ -1,10 +1,9 @@
 <div class="profile-page">
-
   <div class="profile-header">
     <div class="avatar-wrap" (click)="onAvatarClick()">
       <div class="avatar">
-        @if (avatarUrl) {
-          <img [src]="avatarUrl" alt="Avatar" class="avatar-img" />
+        @if (user?.avatarUrl) {
+          <img [src]="user?.avatarUrl" alt="Avatar" class="avatar-img" />
         } @else {
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -14,31 +13,123 @@
       </div>
       <div class="avatar-edit">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
         </svg>
       </div>
     </div>
-    <h1>{{ user?.name ?? 'Путешественник' }}</h1>
+    <h1>{{ user?.name || 'Путешественник' }}</h1>
     <p class="email">{{ user?.email }}</p>
     @if (user?.homeCity) {
       <div class="home-city">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
           <circle cx="12" cy="10" r="3"/>
         </svg>
         {{ user?.homeCity }}
       </div>
+    }
+    @if (user?.bio) {
+      <p class="profile-bio">{{ user?.bio }}</p>
     }
   </div>
 
   <div class="stats-row">
     <div class="stat-card" (click)="goToSaved()">
       <span class="stat-num">{{ savedCount }}</span>
-      <span class="stat-label">Сохранено</span>
+      <span class="stat-label">Избранные</span>
     </div>
+    @if (auth.isAdmin()) {
+      <div class="stat-card admin-card" (click)="goToAdmin()">
+        <span class="stat-num">⚙</span>
+        <span class="stat-label">Админ-панель</span>
+      </div>
+    }
   </div>
 
+  <!-- Two-tab body: profile/settings overview vs saved AI routes list -->
+  <div class="profile-tabs">
+    <button class="profile-tab" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">Профиль</button>
+    <button class="profile-tab" [class.active]="activeTab === 'routes'"   (click)="setTab('routes')">
+      Сохранённые маршруты
+      @if (savedRoutes.length) { <span class="tab-count">{{ savedRoutes.length }}</span> }
+    </button>
+  </div>
+
+  @if (activeTab === 'routes') {
+    <div class="saved-routes-block">
+      @if (isLoadingRoutes) {
+        <p class="empty-routes">Загружаем сохранённые маршруты…</p>
+      } @else if (routesError) {
+        <p class="empty-routes error">{{ routesError }}</p>
+      } @else if (!savedRoutes.length) {
+        <p class="empty-routes">Пока нет сохранённых маршрутов. Сгенерируй маршрут и нажми «Сохранить».</p>
+      } @else {
+        @for (r of savedRoutes; track r.id) {
+          <article class="saved-route-card" (click)="openSavedRoute(r.id)">
+            <header class="route-card-head">
+              <div>
+                <h3>{{ r.title }}</h3>
+                <small>{{ r.cityName }} · {{ r.durationDays }} дн · {{ r.createdAt | date:'d MMM y' }}</small>
+              </div>
+              <button class="route-delete-btn" (click)="deleteSavedRoute(r.id, $event)" aria-label="Удалить">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                </svg>
+              </button>
+            </header>
+            @if (r.aiSummary) {
+              <p class="route-card-summary">{{ r.aiSummary | slice:0:160 }}{{ r.aiSummary.length > 160 ? '…' : '' }}</p>
+            }
+            @if (routeTags(r).length) {
+              <div class="route-card-tags">
+                @for (t of routeTags(r); track t) { <span class="route-tag-chip">{{ t }}</span> }
+              </div>
+            }
+            <button class="route-open-btn" (click)="openSavedRoute(r.id)">Открыть на карте</button>
+          </article>
+        }
+      }
+    </div>
+  }
+
+  @if (activeTab === 'routes') {
+    <!-- Skip the legacy edit/menu blocks when the routes tab is active. -->
+  } @else {
+
+  @if (editMode) {
+    <div class="profile-form">
+      <label>
+        <span>Имя</span>
+        <input [(ngModel)]="draft.name" />
+      </label>
+      <label>
+        <span>Домашний город</span>
+        <input [(ngModel)]="draft.homeCity" />
+      </label>
+      <label>
+        <span>О себе</span>
+        <textarea [(ngModel)]="draft.bio" rows="3"></textarea>
+      </label>
+      <button class="save-profile" (click)="saveProfile()" [disabled]="isSaving">
+        {{ isSaving ? 'Сохраняем...' : 'Сохранить профиль' }}
+      </button>
+    </div>
+  }
+
   <div class="menu">
+    <div class="menu-item" (click)="editMode = !editMode">
+      <div class="menu-icon-wrap settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+        </svg>
+      </div>
+      <span class="menu-text">Редактировать профиль</span>
+      <svg class="menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
 
     <div class="menu-item" (click)="goToSaved()">
       <div class="menu-icon-wrap">
@@ -52,22 +143,10 @@
       </svg>
     </div>
 
-    <div class="menu-item">
-      <div class="menu-icon-wrap routes">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-        </svg>
-      </div>
-      <span class="menu-text">Мои маршруты</span>
-      <svg class="menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
-      </svg>
-    </div>
-
     <div class="menu-item" (click)="toggleSettings()">
       <div class="menu-icon-wrap settings">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.36.31.82.5 1.31.5H21a2 2 0 1 1 0 4h-.09c-.49 0-.95.19-1.51.5z"/>
         </svg>
       </div>
       <span class="menu-text">Настройки</span>
@@ -80,9 +159,6 @@
       <div class="settings-panel">
         <div class="setting-row">
           <div class="setting-info">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
             <span>Тёмная тема</span>
           </div>
           <div class="toggle-switch" [class.active]="isDark" (click)="toggleTheme()">
@@ -91,20 +167,25 @@
         </div>
         <div class="setting-row">
           <div class="setting-info">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
+            <span>Анимации</span>
+          </div>
+          <div class="toggle-switch" [class.active]="animationsEnabled" (click)="toggleAnimations()">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
             <span>Уведомления</span>
           </div>
           <div class="toggle-switch" [class.active]="notificationsOn" (click)="toggleNotifications()">
             <div class="toggle-knob"></div>
           </div>
         </div>
+        @if (notificationMessage) {
+          <p class="settings-note">{{ notificationMessage }}</p>
+        }
         <div class="setting-row">
           <div class="setting-info">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
             <span>Язык</span>
           </div>
           <span class="setting-value">Русский</span>
@@ -119,13 +200,9 @@
         </svg>
       </div>
       <span class="menu-text">Выйти</span>
-      <svg class="menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
-      </svg>
     </div>
-
   </div>
 
-  <div class="version">TravelApp v1.0</div>
-
+  <div class="version">TravelApp v2.0</div>
+  } <!-- end @else activeTab !== routes -->
 </div>

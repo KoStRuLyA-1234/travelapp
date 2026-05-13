@@ -59,7 +59,7 @@
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #4f46e5, #2563eb, #7c3aed);
+  background: linear-gradient(135deg, #2a6f85, #6ec1d4, #ffc657, #2a6f85);
   z-index: -1;
   animation: gradientSpin 4s linear infinite;
   background-size: 300% 300%;
@@ -111,6 +111,57 @@
   font-weight: 500;
 }
 
+.profile-bio {
+  max-width: 320px;
+  margin: 12px auto 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.profile-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.profile-form span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.profile-form input,
+.profile-form textarea {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font: inherit;
+  padding: 11px 12px;
+}
+
+.save-profile {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0f766e, #2563eb);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  padding: 12px 14px;
+}
+
 /* ===== Stats ===== */
 .stats-row {
   display: flex;
@@ -143,7 +194,7 @@
 .stat-num {
   font-size: 32px;
   font-weight: 800;
-  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  background: linear-gradient(135deg, #6ec1d4, #ffc657);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -171,6 +222,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
+  min-height: 56px;
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
   transition: background 0.2s ease;
@@ -192,8 +244,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 70, 229, 0.15));
-  color: #a78bfa;
+  background: linear-gradient(135deg, rgba(42, 111, 133, 0.24), rgba(110, 193, 212, 0.18));
+  color: var(--accent-light);
   flex-shrink: 0;
 }
 
@@ -287,6 +339,13 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.settings-note {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 2px 0 10px;
+}
+
 .toggle-switch.active {
   background: var(--accent-gradient);
 }
@@ -313,3 +372,131 @@
   font-size: 12px;
   color: var(--text-muted);
 }
+
+/* ===== Profile tabs ===== */
+.profile-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 16px;
+  margin: 16px 0 12px;
+}
+.profile-tab {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.profile-tab:active { transform: scale(0.97); }
+.profile-tab.active {
+  color: #fff;
+  background: var(--accent-gradient);
+  border-color: transparent;
+  box-shadow: 0 4px 14px -4px rgba(110, 193, 212, 0.45);
+}
+.profile-tab .tab-count {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Admin shortcut card distinguished by warning hue. */
+.stat-card.admin-card {
+  background: rgba(255, 198, 87, 0.10);
+  border-color: rgba(255, 198, 87, 0.32);
+}
+
+/* ===== Saved routes list ===== */
+.saved-routes-block {
+  padding: 0 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.empty-routes {
+  text-align: center;
+  color: var(--text-tertiary);
+  padding: 32px 16px;
+  margin: 0;
+}
+.empty-routes.error { color: #fca5a5; }
+
+.saved-route-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.saved-route-card:hover { background: var(--bg-card-hover); transform: translateY(-1px); }
+
+.route-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.route-card-head h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.route-card-head small { color: var(--text-tertiary); font-size: 12px; }
+.route-delete-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.route-delete-btn:hover { background: rgba(239,68,68,0.10); color: #f87171; }
+
+.route-card-summary {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.route-card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.route-tag-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(110, 193, 212, 0.14);
+  color: var(--accent-light);
+}
+
+.route-open-btn {
+  align-self: flex-start;
+  margin-top: 4px;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent-gradient);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.route-open-btn:active { transform: scale(0.97); }

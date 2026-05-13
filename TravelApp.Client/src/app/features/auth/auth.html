@@ -1,21 +1,41 @@
+<!--
+  Auth screen — matches the provided mockup:
+    - Full-bleed scenic background (CSS gradient + SVG silhouette).
+    - Top half: pin logo + brand title + tagline.
+    - Bottom half: glass card with tabs, fields with leading icons,
+      "remember me" + "forgot password", gradient CTA, agreement copy.
+  Mobile-first, iPhone 15 safe-area aware.
+-->
 <div class="auth-page">
-
-  <div class="auth-bg">
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
-    <div class="bg-orb orb-3"></div>
+  <!-- Decorative scenic background — pure CSS so we ship no extra images. -->
+  <div class="scenic" aria-hidden="true">
+    <svg class="map-trail" viewBox="0 0 200 360" preserveAspectRatio="none">
+      <path d="M40,40 Q80,80 70,140 T140,260 Q120,300 160,340"
+            fill="none" stroke="rgba(110,193,212,0.32)" stroke-width="1.4"
+            stroke-dasharray="4 6" stroke-linecap="round"/>
+      <circle cx="40" cy="40" r="4" fill="#6ec1d4"/>
+    </svg>
+    <svg class="skyline" viewBox="0 0 480 160" preserveAspectRatio="xMidYMax slice">
+      <!-- Russian-style domes silhouette -->
+      <g fill="rgba(8,15,22,0.86)">
+        <rect x="0"   y="100" width="480" height="60"/>
+        <path d="M40 100 L40 70 Q60 30 80 70 L80 100 Z"/>
+        <path d="M100 100 L100 60 Q120 10 140 60 L140 100 Z"/>
+        <path d="M160 100 L160 80 L200 80 L200 100 Z"/>
+        <path d="M220 100 L220 50 Q250 0 280 50 L280 100 Z"/>
+        <path d="M300 100 L300 70 L340 70 L340 100 Z"/>
+        <path d="M360 100 L360 60 Q380 20 400 60 L400 100 Z"/>
+        <path d="M420 100 L420 75 L460 75 L460 100 Z"/>
+      </g>
+    </svg>
   </div>
 
-  <div class="auth-header">
+  <!-- Brand block -->
+  <div class="brand">
     <div class="logo">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <defs>
-          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#a78bfa"/>
-            <stop offset="100%" stop-color="#4f46e5"/>
-          </linearGradient>
-        </defs>
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
         <circle cx="12" cy="10" r="3"/>
       </svg>
     </div>
@@ -23,46 +43,162 @@
     <p>Открой Россию по-новому</p>
   </div>
 
-  <div class="auth-card">
-
-    <div class="tabs">
-      <button [class.active]="isLogin" (click)="isLogin = true">Вход</button>
-      <button [class.active]="!isLogin" (click)="isLogin = false">Регистрация</button>
+  <!-- Glass card -->
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()" [@shake]="shaking">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" [attr.aria-selected]="isLogin && !isRecovery"
+              [class.active]="isLogin && !isRecovery" (click)="setMode('login')">Вход</button>
+      <button type="button" role="tab" [attr.aria-selected]="isRegister"
+              [class.active]="isRegister" (click)="setMode('register')">Регистрация</button>
     </div>
+
+    @if (isRecovery) {
+      <div class="recovery-title" @tabMode>
+        <strong>Восстановление пароля</strong>
+        <span>Укажи email — пришлём ссылку для сброса.</span>
+      </div>
+    }
 
     @if (error) {
-      <div class="error">{{ error }}</div>
-    }
-
-    @if (!isLogin) {
-      <div class="field">
-        <label>Имя</label>
-        <input [(ngModel)]="name" placeholder="Как тебя зовут?" />
+      <div class="error" @errorSlide>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ error }}
       </div>
     }
 
-    <div class="field">
-      <label>Email</label>
-      <input [(ngModel)]="email" type="email" placeholder="твой&#64;email.com" />
-    </div>
-
-    <div class="field">
-      <label>Пароль</label>
-      <input [(ngModel)]="password" type="password" placeholder="Минимум 6 символов" />
-    </div>
-
-    @if (!isLogin) {
-      <div class="field">
-        <label>Твой город</label>
-        <input [(ngModel)]="homeCity" placeholder="Например: Иваново" />
-        <span class="hint">Подберём куда съездить на выходных</span>
+    @if (notice) {
+      <div class="notice" @errorSlide>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        {{ notice }}
       </div>
     }
 
-    <button class="submit-btn" (click)="submit()" [disabled]="isLoading">
-      {{ isLoading ? 'Загружаем...' : (isLogin ? 'Войти' : 'Зарегистрироваться') }}
+    @if (isRegister) {
+      <label class="field" @tabMode [class.invalid]="fieldInvalid('name')">
+        <span>Имя</span>
+        <div class="input-wrap">
+          <svg class="leading-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <input formControlName="name" autocomplete="name" placeholder="Как тебя зовут?" />
+        </div>
+        @if (fieldInvalid('name')) {
+          <span class="field-error">Укажи имя</span>
+        }
+      </label>
+    }
+
+    <label class="field" [class.invalid]="fieldInvalid('email')">
+      <span>Email</span>
+      <div class="input-wrap">
+        <svg class="leading-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        <input formControlName="email" type="email" autocomplete="email"
+               placeholder="name@example.com" />
+      </div>
+      @if (fieldInvalid('email')) {
+        <span class="field-error">Введи корректный email</span>
+      }
+    </label>
+
+    @if (!isRecovery) {
+      <label class="field" [class.invalid]="fieldInvalid('password')">
+        <span>Пароль</span>
+        <div class="input-wrap">
+          <svg class="leading-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input formControlName="password"
+                 [type]="showPassword ? 'text' : 'password'"
+                 [attr.autocomplete]="isLogin ? 'current-password' : 'new-password'"
+                 placeholder="Минимум 6 символов" />
+          <button type="button" class="trailing-icon" (click)="togglePasswordVisible()"
+                  [attr.aria-label]="showPassword ? 'Скрыть пароль' : 'Показать пароль'">
+            @if (showPassword) {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            } @else {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            }
+          </button>
+        </div>
+        @if (fieldInvalid('password')) {
+          <span class="field-error">Минимум 6 символов</span>
+        }
+      </label>
+    }
+
+    @if (isRegister) {
+      <label class="field" @tabMode>
+        <span>Домашний город</span>
+        <div class="input-wrap">
+          <svg class="leading-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <input formControlName="homeCity" autocomplete="address-level2" placeholder="Например: Казань" />
+        </div>
+        <small>Используем для советов на выходные.</small>
+      </label>
+    }
+
+    <!-- Remember me + Forgot password row (login mode only) -->
+    @if (isLogin && !isRecovery) {
+      <div class="row-actions">
+        <label class="checkbox">
+          <input type="checkbox" formControlName="rememberMe" />
+          <span class="check-box"></span>
+          <span class="check-label">Запомнить меня</span>
+        </label>
+        <button class="text-btn" type="button" (click)="setMode('recovery')">Забыли пароль?</button>
+      </div>
+    }
+
+    @if (isRecovery) {
+      <button class="text-btn" type="button" (click)="setMode('login')">Вернуться ко входу</button>
+    }
+
+    <button class="submit-btn" type="submit" [disabled]="isLoading">
+      @if (isLoading) {
+        <span class="btn-spinner"></span>
+        Отправляем...
+      } @else {
+        {{ isRecovery ? 'Отправить письмо' : isLogin ? 'Войти' : 'Создать аккаунт' }}
+      }
     </button>
 
-  </div>
-
+    @if (isLogin || isRegister) {
+      <p class="agreement">
+        Продолжая, вы соглашаетесь<br>с
+        <a href="#" (click)="$event.preventDefault()">Пользовательским соглашением</a>
+        и <a href="#" (click)="$event.preventDefault()">Политикой конфиденциальности</a>
+      </p>
+    }
+  </form>
 </div>

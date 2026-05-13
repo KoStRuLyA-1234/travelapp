@@ -1,0 +1,47 @@
+<!--
+  Splash / Hero screen — shown once per session.
+  Render order: canvas (background) → content overlay → CTA button.
+  No @if (ready) gating — content shows immediately, CSS handles the entrance.
+-->
+@if (show) {
+  <div class="splash">
+    <canvas #canvas class="particles-canvas" aria-hidden="true"></canvas>
+
+    <div class="splash-content">
+      <!-- Animated logo with pulse-glow ring -->
+      <div class="logo-wrap">
+        <div class="logo-glow"></div>
+        <div class="logo-ring">
+          <svg class="logo-svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="splash-title">
+        <span class="title-travel">Travel</span><span class="title-app">App</span>
+      </h1>
+
+      <p class="splash-subtitle">
+        Города России — маршруты, достопримечательности<br>и AI‑гид в одном приложении
+      </p>
+
+      <button class="cta-btn" type="button" (click)="start()">
+        <span class="cta-text">Начать путешествие</span>
+        <svg class="cta-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+
+      <div class="splash-dots">
+        <span class="dot"></span>
+        <span class="dot active"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </div>
+}

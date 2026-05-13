@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, AfterViewInit,
+  ElementRef, ViewChild, ViewChildren, QueryList
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CityService } from '../../core/services/city.service';
 import { Guide } from '../../core/services/guide';
-import { Auth } from '../../core/services/auth';
+import { Auth, CurrentUser } from '../../core/services/auth';
 import { City } from '../../core/models/city.model';
 
 @Component({
@@ -13,17 +16,22 @@ import { City } from '../../core/models/city.model';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('cardsContainer') cardsContainerRef!: ElementRef<HTMLElement>;
+  @ViewChildren('citySlide') citySlideRefs!: QueryList<ElementRef<HTMLElement>>;
 
   cities: City[] = [];
   isLoading = true;
-  savedIds: number[] = [];
-  user: any = null;
+  savedIds = new Set<number>();
+  user: CurrentUser | null = null;
   weekendTips = '';
   weekendError = '';
   isLoadingTips = false;
   showWeekend = false;
   isDark = false;
+
+  private observer: IntersectionObserver | null = null;
+  private heartAnimating = new Set<number>();
 
   constructor(
     private cityService: CityService,
@@ -33,19 +41,55 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadSaved();
     this.user = this.auth.getUser();
-    this.isDark = localStorage.getItem('theme') !== 'light';
+    this.isDark = (this.user?.theme ?? localStorage.getItem('theme') ?? 'dark') !== 'light';
     document.body.classList.toggle('light-theme', !this.isDark);
+    document.body.classList.toggle('animations-off', localStorage.getItem('animationsEnabled') === 'false');
+    this.loadCities();
+  }
 
+  ngAfterViewInit() {
+    this.setupIntersectionObserver();
+  }
+
+  ngOnDestroy() {
+    this.observer?.disconnect();
+  }
+
+  private setupIntersectionObserver() {
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    // Re-observe whenever slides change
+    this.citySlideRefs?.changes.subscribe(() => this.observeSlides());
+    this.observeSlides();
+  }
+
+  private observeSlides() {
+    if (!this.observer) return;
+    this.citySlideRefs?.forEach(ref => this.observer!.observe(ref.nativeElement));
+  }
+
+  loadCities() {
     this.cityService.getCities().subscribe({
       next: (data) => {
         this.cities = data;
+        this.savedIds = new Set(data.filter(c => c.isFavorite).map(c => c.id));
         this.isLoading = false;
         this.loadPhotos();
+        // Re-observe after data arrives
+        setTimeout(() => this.observeSlides(), 60);
       },
       error: (err) => {
-        console.error('Ошибка загрузки:', err);
+        console.error('Ошибка загрузки городов:', err);
         this.isLoading = false;
       }
     });
@@ -62,8 +106,7 @@ export class HomeComponent implements OnInit {
   }
 
   getPhotoUrl(city: City): string {
-    if (city.imageUrl && city.imageUrl.startsWith('http')) return city.imageUrl;
-    return '';
+    return city.imageUrl?.startsWith('http') ? city.imageUrl : '';
   }
 
   toggleWeekend() {
@@ -73,10 +116,58 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // ── "Куда съездить на выходные?" — AI pick from real cities ─────
+  weekendPick: import('../../core/services/guide').WeekendResponse | null = null;
+  isLoadingWeekendPick = false;
+  weekendPickError = '';
+
+  pickWeekendCity() {
+    if (this.isLoadingWeekendPick) return;
+    if (!navigator.onLine) {
+      this.weekendPickError = 'Рекомендация недоступна без интернета.';
+      return;
+    }
+    this.isLoadingWeekendPick = true;
+    this.weekendPickError = '';
+    this.weekendPick = null;
+
+    this.guide.weekend(this.user?.homeCity).subscribe({
+      next: (r) => {
+        this.isLoadingWeekendPick = false;
+        if (!r.success) {
+          this.weekendPickError = r.error ?? 'Не удалось получить рекомендацию.';
+          return;
+        }
+        this.weekendPick = r;
+      },
+      error: (err) => {
+        this.isLoadingWeekendPick = false;
+        this.weekendPickError = err?.type === 'timeout'
+          ? 'AI отвечал слишком долго. Попробуй ещё раз.'
+          : 'Не удалось получить рекомендацию.';
+      }
+    });
+  }
+
+  closeWeekendPick() {
+    this.weekendPick = null;
+    this.weekendPickError = '';
+  }
+
+  goToWeekendCity() {
+    if (this.weekendPick?.cityId) {
+      const id = this.weekendPick.cityId;
+      this.closeWeekendPick();
+      this.router.navigate(['/cities', id]);
+    }
+  }
+
   toggleTheme() {
     this.isDark = !this.isDark;
-    localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+    const theme = this.isDark ? 'dark' : 'light';
+    localStorage.setItem('theme', theme);
     document.body.classList.toggle('light-theme', !this.isDark);
+    this.auth.updateProfile({ theme }).subscribe({ error: () => {} });
   }
 
   loadWeekendTips() {
@@ -85,17 +176,14 @@ export class HomeComponent implements OnInit {
       return;
     }
     this.isLoadingTips = true;
-    this.weekendError  = '';
+    this.weekendError = '';
     this.guide.ask(
-      this.user.homeCity,
-      `Я живу в ${this.user.homeCity}. Предложи 3 места куда съездить на выходных. Для каждого — расстояние и одна причина. Кратко.`
+      this.user?.homeCity ?? '',
+      `Я живу в городе ${this.user?.homeCity}. Предложи 3 места для поездки на выходные. Для каждого укажи расстояние и одну причину. Кратко.`
     ).subscribe({
-      next: (r) => {
-        this.weekendTips   = r.answer;
-        this.isLoadingTips = false;
-      },
+      next: (r) => { this.weekendTips = r.answer; this.isLoadingTips = false; },
       error: (err) => {
-        this.weekendError  = err?.type === 'timeout'
+        this.weekendError = err?.type === 'timeout'
           ? 'Запрос занял слишком много времени. Попробуй ещё раз.'
           : 'Не удалось получить рекомендации. Попробуй позже.';
         this.isLoadingTips = false;
@@ -105,60 +193,51 @@ export class HomeComponent implements OnInit {
 
   getTags(city: City): string[] {
     if (!city.tags) return [];
-    return city.tags.toString().split(',').slice(0, 3);
+    return city.tags.toString().split(',').map(t => t.trim()).filter(Boolean).slice(0, 3);
   }
 
-  // Converts AI markdown response to readable HTML (same logic as city-detail)
   formatTips(text: string): string {
     if (!text) return '';
-
-    let result = text;
-
-    // Fix missing space after sentence-ending punctuation before a capital letter
-    result = result.replace(/([.!?])([А-ЯЁA-Z])/g, '$1 $2');
-
-    // Bold: **text**
-    result = result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-    // Italic: *text*
-    result = result.replace(/(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
-
-    // Bullet list items: "- " or "• "
-    result = result.replace(/^[-•]\s+(.+)$/gm, '• $1');
-
-    // Numbered list items: "1. "
-    result = result.replace(/^(\d+)\.\s+(.+)$/gm, '$1. $2');
-
-    // Normalize multiple blank lines
-    result = result.replace(/\n{3,}/g, '\n\n');
-
-    // Double newline → paragraph break
-    result = result.replace(/\n\n/g, '<br><br>');
-
-    // Single newline → line break
-    result = result.replace(/\n/g, '<br>');
-
-    return result.trim();
+    let r = text;
+    r = r.replace(/([.!?])([А-ЯЁA-Z])/g, '$1 $2');
+    r = r.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    r = r.replace(/(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+    r = r.replace(/^[-•]\s+(.+)$/gm, '• $1');
+    r = r.replace(/^(\d+)\.\s+(.+)$/gm, '$1. $2');
+    r = r.replace(/\n{3,}/g, '\n\n');
+    r = r.replace(/\n\n/g, '<br><br>');
+    r = r.replace(/\n/g, '<br>');
+    return r.trim();
   }
 
-  loadSaved() {
-    const saved = localStorage.getItem('savedCities');
-    this.savedIds = saved ? JSON.parse(saved) : [];
-  }
+  isSaved(id: number): boolean { return this.savedIds.has(id); }
 
-  isSaved(id: number): boolean {
-    return this.savedIds.includes(id);
-  }
+  isHeartAnimating(id: number): boolean { return this.heartAnimating.has(id); }
 
   toggleSave(event: Event, id: number) {
     event.stopPropagation();
-    if (this.isSaved(id)) {
-      this.savedIds = this.savedIds.filter(s => s !== id);
+    const wasSaved = this.isSaved(id);
+
+    // Micro-interaction: heart bounce
+    this.heartAnimating.add(id);
+    setTimeout(() => this.heartAnimating.delete(id), 400);
+
+    wasSaved ? this.savedIds.delete(id) : this.savedIds.add(id);
+    this.cities = this.cities.map(c => c.id === id ? { ...c, isFavorite: !wasSaved } : c);
+
+    const rollback = () => {
+      wasSaved ? this.savedIds.add(id) : this.savedIds.delete(id);
+      this.cities = this.cities.map(c => c.id === id ? { ...c, isFavorite: wasSaved } : c);
+    };
+
+    if (wasSaved) {
+      this.cityService.removeFavorite(id).subscribe({ error: rollback });
     } else {
-      this.savedIds.push(id);
+      this.cityService.addFavorite(id).subscribe({ error: rollback });
     }
-    localStorage.setItem('savedCities', JSON.stringify(this.savedIds));
   }
 
   openCity(id: number) { this.router.navigate(['/cities', id]); }
+
+  openRoulette() { this.router.navigate(['/roulette']); }
 }

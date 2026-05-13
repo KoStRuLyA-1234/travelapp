@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CityService } from '../../core/services/city.service';
 import { Guide, RouteDayData } from '../../core/services/guide';
+import { UserRoutesService } from '../../core/services/user-routes';
 import { City } from '../../core/models/city.model';
 
 declare const ymaps: any;
@@ -13,6 +14,9 @@ type RoutePlace = {
   time: string;
   duration: string;
   tip: string;
+  /** Optional — backend fills this when the AI-name matched a real Attraction. */
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 type RouteDay = {
@@ -33,6 +37,11 @@ export class RoutePlanner implements OnInit {
   step = 1;
   isGenerating = false;
   isPdfGenerating = false;
+
+  // Save-to-DB UI state
+  isSavingRoute = false;
+  saveError = '';
+  savedRouteId: number | null = null;
 
   // True once step 4 has been entered (controls result block visibility)
   showResult = false;
@@ -66,7 +75,8 @@ export class RoutePlanner implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private cityService: CityService,
-    private guide: Guide
+    private guide: Guide,
+    private userRoutes: UserRoutesService
   ) {}
 
   ngOnInit() {
@@ -112,6 +122,8 @@ export class RoutePlanner implements OnInit {
     this.routeError = '';
     this.places = [];
     this.routeDays = [];
+    this.savedRouteId = null;
+    this.saveError = '';
 
     this.guide.askRoute({
       cityName: this.city?.name ?? '',
@@ -149,11 +161,13 @@ export class RoutePlanner implements OnInit {
       day: d.day,
       title: d.title ?? '',
       places: d.places.map(p => ({
-        name:     p.name,
-        day:      d.day,
-        time:     p.time,
-        duration: p.duration ?? '',
-        tip:      p.tip
+        name:      p.name,
+        day:       d.day,
+        time:      p.time,
+        duration:  p.duration ?? '',
+        tip:       p.tip,
+        latitude:  p.latitude,
+        longitude: p.longitude
       }))
     }));
   }
@@ -165,57 +179,221 @@ export class RoutePlanner implements OnInit {
       const mapElement = document.getElementById('route-map');
       if (mapElement) mapElement.innerHTML = '';
 
+      // ── 1. Resolve city centre coordinates ────────────────────────────
+      // Prefer the city's coordinates that came from our DB (via the City
+      // service); fall back to Yandex geocoder if the City row is missing
+      // them. This keeps the map working even on flaky internet.
+      let cityCoords: [number, number];
+      if (this.city?.latitude != null && this.city?.longitude != null) {
+        cityCoords = [this.city.latitude, this.city.longitude];
+      } else {
+        try {
+          const cityResult = await ymaps.geocode(`${this.city?.name ?? ''}, Россия`, { results: 1 });
+          const cityGeo = cityResult.geoObjects.get(0);
+          if (!cityGeo) return;
+          cityCoords = cityGeo.geometry.getCoordinates();
+        } catch { return; }
+      }
+
       const map = new ymaps.Map('route-map', {
-        center: [55.75, 37.62],
+        center: cityCoords,
         zoom: 12,
         controls: ['zoomControl'],
         behaviors: ['drag', 'scrollZoom']
       });
 
-      const cityResult = await ymaps.geocode(`${this.city!.name}, Россия`, { results: 1 });
-      const cityGeo = cityResult.geoObjects.get(0);
-      if (!cityGeo) return;
-
-      const cityCoords = cityGeo.geometry.getCoordinates();
-      map.setCenter(cityCoords, 12);
-
       const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
 
-      const geocodePromises = this.places.map((place, index) =>
-        ymaps.geocode(`${this.city!.name}, ${place.name}`, { results: 1 }).then((result: any) => {
+      // ── 2. Resolve every place's coordinates ──────────────────────────
+      // Priority:
+      //   (a) backend-provided lat/lng (matched against Attractions table)
+      //   (b) Yandex geocoder result that is within 50 km of the city
+      //   (c) city centre + tiny deterministic jitter so markers don't pile up
+      // This GUARANTEES every place gets a marker — the previous code
+      // silently dropped places when the geocoder couldn't resolve the
+      // AI-fabricated name.
+      const resolved: Array<{ coords: [number, number]; place: RoutePlace; index: number; precise: boolean }> = [];
+
+      await Promise.all(this.places.map(async (place, index) => {
+        // (a) Backend coords win — no geocoder round-trip needed.
+        if (place.latitude != null && place.longitude != null) {
+          resolved.push({ coords: [place.latitude, place.longitude], place, index, precise: true });
+          return;
+        }
+        // (b) Try Yandex geocoder.
+        try {
+          const result = await ymaps.geocode(`${this.city!.name}, ${place.name}`, { results: 1 });
           const coords = result.geoObjects.get(0)?.geometry.getCoordinates();
-          if (!coords) return null;
+          if (coords) {
+            const distance = ymaps.coordSystem.geo.distance(cityCoords, coords);
+            if (distance <= 50000) {
+              resolved.push({ coords, place, index, precise: true });
+              return;
+            }
+          }
+        } catch { /* network / quota issue — fall through to jitter */ }
 
-          const distance = ymaps.coordSystem.geo.distance(cityCoords, coords);
-          if (distance > 50000) return null;
+        // (c) City-centre fallback with a deterministic per-index jitter
+        //     (~ ±400m) so markers don't stack on top of each other.
+        const jitterLat = ((index * 37) % 9 - 4) * 0.0008;
+        const jitterLng = ((index * 53) % 11 - 5) * 0.0012;
+        resolved.push({
+          coords: [cityCoords[0] + jitterLat, cityCoords[1] + jitterLng],
+          place, index, precise: false
+        });
+      }));
 
-          const color = colors[(place.day - 1) % colors.length];
-          const placemark = new ymaps.Placemark(
-            coords,
-            {
-              balloonContent: `<b>${place.time}</b>${place.duration ? ' · ' + place.duration : ''} — ${place.name}<br>${place.tip}`,
-              iconContent: index + 1
-            },
-            { preset: 'islands#circleIcon', iconColor: color }
-          );
-          map.geoObjects.add(placemark);
-          return coords;
-        })
-      );
+      // Preserve the original day/time order on the map.
+      resolved.sort((a, b) => a.index - b.index);
 
-      const coordsList = await Promise.all(geocodePromises);
-      const validCoords = coordsList.filter(c => c !== null);
-      if (validCoords.length > 1) {
-        const multiRoute = new ymaps.multiRouter.MultiRoute(
-          { referencePoints: validCoords, params: { routingMode: 'pedestrian' } },
-          { boundsAutoApply: true }
+      for (const { coords, place, index, precise } of resolved) {
+        const color = colors[(place.day - 1) % colors.length];
+        const balloonNote = precise ? '' : '<br><small>Приблизительное расположение</small>';
+        const placemark = new ymaps.Placemark(
+          coords,
+          {
+            balloonContent: `<b>${place.time}</b>${place.duration ? ' · ' + place.duration : ''} — ${place.name}<br>${place.tip}${balloonNote}`,
+            iconContent: index + 1
+          },
+          { preset: 'islands#circleIcon', iconColor: color }
         );
-        map.geoObjects.add(multiRoute);
+        map.geoObjects.add(placemark);
+      }
+
+      // ── 3. Connect markers with a route line if we have ≥ 2 of them ───
+      const validCoords = resolved.filter(r => r.precise).map(r => r.coords);
+      if (validCoords.length > 1) {
+        try {
+          const multiRoute = new ymaps.multiRouter.MultiRoute(
+            { referencePoints: validCoords, params: { routingMode: 'pedestrian' } },
+            { boundsAutoApply: true }
+          );
+          map.geoObjects.add(multiRoute);
+        } catch { /* MultiRoute is best-effort; markers themselves are enough */ }
+      } else {
+        // Auto-fit the map to all markers (precise + jittered).
+        try {
+          const bounds = resolved.map(r => r.coords);
+          if (bounds.length > 0) map.setBounds(this.boundsFromPoints(bounds), { checkZoomRange: true });
+        } catch { /* leave at default centre */ }
       }
     });
   }
 
+  /** Compute a [[swLat, swLng], [neLat, neLng]] bounding box from points. */
+  private boundsFromPoints(points: Array<[number, number]>): [[number, number], [number, number]] {
+    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    for (const [lat, lng] of points) {
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+    }
+    // pad ~5%
+    const padLat = Math.max(0.005, (maxLat - minLat) * 0.05);
+    const padLng = Math.max(0.005, (maxLng - minLng) * 0.05);
+    return [[minLat - padLat, minLng - padLng], [maxLat + padLat, maxLng + padLng]];
+  }
+
   goBack() { this.router.navigate(['/cities', this.city?.id]); }
+
+  // ── Save the just-generated route to the user's profile ──────────
+  // Idempotent server-side via ContentHash, so re-pressing the button
+  // doesn't duplicate the row — it just updates `savedRouteId`.
+  saveRoute() {
+    if (this.isSavingRoute || !this.places.length || !this.city) return;
+    this.isSavingRoute = true;
+    this.saveError = '';
+
+    this.userRoutes.save({
+      cityId:       this.city.id,
+      title:        this.buildRouteTitle(),
+      description:  '',
+      durationDays: this.selectedDays,
+      theme:        this.getSelectedStyleLabel(),
+      tags:         this.deriveTags(),
+      aiSummary:    this.buildAiSummary(),
+      stops: this.places.map(p => ({
+        day:       p.day,
+        name:      p.name,
+        time:      p.time,
+        duration:  p.duration,
+        tip:       p.tip,
+        latitude:  p.latitude,
+        longitude: p.longitude
+      }))
+    }).subscribe({
+      next: r => {
+        this.isSavingRoute = false;
+        this.savedRouteId  = r.id;
+      },
+      error: () => {
+        this.isSavingRoute = false;
+        this.saveError = 'Не удалось сохранить маршрут. Попробуй ещё раз.';
+      }
+    });
+  }
+
+  /** Open the saved route page (map + AI text). */
+  openSavedRoute() {
+    if (this.savedRouteId) this.router.navigate(['/routes', this.savedRouteId]);
+  }
+
+  /** "Москва · 2 дня · Культура" — used as the saved route's title. */
+  private buildRouteTitle(): string {
+    const parts = [this.city?.name, `${this.selectedDays} дн`, this.getSelectedStyleLabel()].filter(Boolean);
+    return parts.join(' · ');
+  }
+
+  /**
+   * Build a human summary the model could have written. We don't want to
+   * hit the AI again just for this — instead we stitch together day titles
+   * + first place per day + first useful tip.
+   */
+  private buildAiSummary(): string {
+    if (!this.routeDays.length) return '';
+    const lines = this.routeDays.map(d => {
+      const first = d.places[0];
+      const headline = d.title || `День ${d.day}`;
+      const start = first ? ` Начнём с «${first.name}» в ${first.time || 'утро'}.` : '';
+      const tip = d.places.find(p => p.tip)?.tip ?? '';
+      return `День ${d.day}. ${headline}.${start}${tip ? ' ' + tip : ''}`;
+    });
+    return lines.join('\n\n');
+  }
+
+  /**
+   * Derive tags from city + style + place hints. The set is intentionally
+   * coarse so the admin "filter by tag" feature works on bag-of-keywords.
+   */
+  private deriveTags(): string {
+    const tags = new Set<string>();
+    // Base from the user's chosen style
+    const style = this.getSelectedStyleLabel().toLowerCase();
+    if (style) tags.add(style);
+    // City tags ("море,столица,культура") inherited as-is
+    if (this.city?.tags) {
+      for (const t of this.city.tags.split(',')) {
+        const v = t.trim().toLowerCase();
+        if (v) tags.add(v);
+      }
+    }
+    // Heuristics from place names — pick a few well-known categories
+    const blob = this.places.map(p => `${p.name} ${p.tip}`).join(' ').toLowerCase();
+    const hints: Array<[RegExp, string]> = [
+      [/музе/, 'музеи'],
+      [/набереж|пляж|мор[ея]/, 'море'],
+      [/парк|сад|сквер|природ/, 'природа'],
+      [/собор|храм|церк|монастыр/, 'религия'],
+      [/ресторан|кафе|еда|кухн/, 'гастрономия'],
+      [/кремл|столиц/, 'столица'],
+      [/бар|клуб|ночн/, 'ночная жизнь']
+    ];
+    for (const [re, tag] of hints) {
+      if (re.test(blob)) tags.add(tag);
+    }
+    return [...tags].slice(0, 8).join(',');
+  }
 
   getSelectedStyleLabel(): string {
     return this.styles.find(s => s.id === this.selectedStyle)?.label ?? '';
@@ -325,7 +503,9 @@ export class RoutePlanner implements OnInit {
         const canvas = await html2canvas(pages[i], {
           width, height, windowWidth: width, windowHeight: height,
           scale: 2, useCORS: true, allowTaint: true,
-          backgroundColor: '#ffffff', logging: false
+          // Match the dark template background so any rounding/anti-alias
+          // artifacts blend in instead of producing a 1-2px white border.
+          backgroundColor: '#0b0f14', logging: false
         });
 
         if (i > 0) pdf.addPage();

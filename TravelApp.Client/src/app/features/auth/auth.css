@@ -1,240 +1,430 @@
-/* ===== iOS 18 + Glassmorphism — Auth ===== */
+/* =============================================================
+   Auth screen — matches the mockup:
+   - Full-bleed scenic background (CSS gradient + dome silhouette).
+   - Brand block in upper third.
+   - Glass auth-card in lower two thirds with curved top edge.
+   ============================================================= */
 
-:host {
-  font-family: var(--font);
-}
+:host { font-family: var(--font); display: block; }
 
 .auth-page {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 16px;
-  background: var(--bg-primary);
   max-width: 480px;
   margin: 0 auto;
-  position: relative;
+  padding: 0;
+  /* Real photographic background — sits under a deep gradient overlay
+     for legibility. The image lives in /public/images/ and Angular
+     serves it from the asset root. */
+  background:
+    /* Bottom darkening gradient so the glass card stays readable */
+    linear-gradient(
+      180deg,
+      rgba(8, 15, 22, 0.10) 0%,
+      rgba(8, 15, 22, 0.35) 45%,
+      rgba(8, 15, 22, 0.92) 100%
+    ),
+    url('/images/auth-bg.png') center top / cover no-repeat,
+    /* Color fallback if image fails to load */
+    linear-gradient(180deg, #0b0f14 0%, #121821 35%, #080f16 100%);
+  background-color: #0b0f14;
+  color: var(--text-primary);
   overflow: hidden;
+  padding-top:    env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-/* ===== Animated Background ===== */
-.auth-bg {
+/* Decorative SVG layer is hidden when a real photo background is used,
+   but kept in the DOM as a graceful fallback for offline / missing image. */
+.scenic {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  overflow: hidden;
+  z-index: 0;
+  display: none;
 }
 
-.bg-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: orbFloat 8s ease-in-out infinite;
-}
-
-.orb-1 {
-  width: 300px;
-  height: 300px;
-  background: #7c3aed;
-  top: -100px;
-  right: -80px;
-  animation-delay: 0s;
-}
-
-.orb-2 {
-  width: 250px;
-  height: 250px;
-  background: #4f46e5;
-  bottom: -60px;
-  left: -80px;
-  animation-delay: -3s;
-}
-
-.orb-3 {
-  width: 200px;
-  height: 200px;
-  background: #2563eb;
-  top: 40%;
-  left: 50%;
-  transform: translateX(-50%);
-  animation-delay: -5s;
-}
-
-@keyframes orbFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(20px, -30px) scale(1.05); }
-  66% { transform: translate(-15px, 20px) scale(0.95); }
-}
-
-/* ===== Header ===== */
-.auth-header {
-  text-align: center;
-  margin-bottom: 36px;
+/* ----------------------- Brand block ----------------------- */
+.brand {
   position: relative;
   z-index: 1;
+  text-align: center;
+  /* Push title down so the upper half of the photo (sky + map markers)
+     is visible behind the brand block, matching the mockup composition. */
+  padding: clamp(80px, 18vh, 140px) 28px 16px;
+  animation: brandIn 0.6s 0.05s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .logo {
-  margin-bottom: 16px;
-}
-
-.auth-header h1 {
-  font-size: 32px;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0 0 8px;
-  letter-spacing: -0.5px;
-}
-
-.auth-header p {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.45);
-  margin: 0;
-  font-weight: 400;
-}
-
-/* ===== Glass Card ===== */
-.auth-card {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(40px) saturate(150%);
-  -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 28px;
-  padding: 28px 24px;
-  width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
-              0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-  position: relative;
-  z-index: 1;
-  animation: cardAppear 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes cardAppear {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ===== Tabs ===== */
-.tabs {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
   display: flex;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 4px;
-  margin-bottom: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 111, 133, 0.32);
+  border: 1.5px solid rgba(110, 193, 212, 0.55);
+  color: #6ec1d4;
+  /* Glow + drop shadow so the pin stays visible against varied photo */
+  box-shadow:
+    0 8px 28px -8px rgba(110, 193, 212, 0.7),
+    0 0 0 6px rgba(110, 193, 212, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.brand h1 {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+  /* Subtle shadow so the title pops over the photographic background */
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+.brand p {
+  font-size: 14px;
+  margin: 0;
+  color: rgba(245, 246, 247, 0.85);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+
+@keyframes brandIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------- Auth card ------------------------- */
+.auth-card {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding: 24px 22px max(env(safe-area-inset-bottom, 24px), 24px);
+  border-radius: 28px 28px 0 0;
+  background: rgba(18, 24, 33, 0.92);
+  border: 1px solid rgba(110, 193, 212, 0.16);
+  border-bottom: 0;
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  box-shadow: 0 -16px 48px -12px rgba(0, 0, 0, 0.6);
+  animation: cardIn 0.55s 0.18s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------- Tabs ----------------------------- */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 22px;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .tabs button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  background: none;
-  border-radius: 13px;
-  font-size: 14px;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: 15px;
   font-weight: 600;
-  font-family: var(--font);
+  min-height: 44px;
+  padding: 12px 0;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.4);
-  transition: all 0.3s ease;
+  position: relative;
+  transition: color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .tabs button.active {
-  background: var(--accent-gradient);
-  color: #ffffff;
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+  color: #6ec1d4;
 }
 
-/* ===== Fields ===== */
+.tabs button.active::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #2a6f85, #6ec1d4);
+  animation: tabUnderline 0.3s ease;
+}
+
+@keyframes tabUnderline {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ----------------------- Recovery title -------------------- */
+.recovery-title {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: rgba(42, 111, 133, 0.18);
+  border: 1px solid rgba(110, 193, 212, 0.2);
+}
+.recovery-title strong { color: var(--text-primary); font-size: 14px; }
+.recovery-title span   { color: var(--text-secondary); font-size: 12px; line-height: 1.45; }
+
+/* ----------------------- Banners --------------------------- */
+.error,
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow: hidden;
+}
+.error  { background: rgba(239, 68, 68, 0.10); border: 1px solid rgba(239, 68, 68, 0.22); color: #fca5a5; }
+.notice { background: rgba(34, 197, 94, 0.10); border: 1px solid rgba(34, 197, 94, 0.25); color: #86efac; }
+.error svg, .notice svg { flex-shrink: 0; margin-top: 1px; }
+
+/* ----------------------- Fields --------------------------- */
 .field {
-  margin-bottom: 18px;
+  display: block;
+  margin-bottom: 14px;
+  position: relative;
 }
 
-.field label {
+.field > span {
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 8px;
-  letter-spacing: 0.2px;
+  color: var(--text-secondary);
+  margin-bottom: 7px;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.leading-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  transition: color 0.2s ease;
 }
 
 .field input {
   width: 100%;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  font-size: 15px;
-  font-family: var(--font);
-  font-weight: 400;
-  color: #ffffff;
-  outline: none;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
-}
-
-.field input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
-}
-
-.field input:focus {
-  border-color: rgba(124, 58, 237, 0.5);
-  background: rgba(124, 58, 237, 0.06);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
-}
-
-.hint {
-  font-size: 12px;
-  color: var(--accent-light);
-  margin-top: 6px;
-  display: block;
-}
-
-/* ===== Error ===== */
-.error {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  padding: 12px 16px;
+  /* Touch target: 56px */
+  min-height: 56px;
+  padding: 16px 14px 16px 44px;
   border-radius: 14px;
-  font-size: 13px;
-  margin-bottom: 18px;
-}
-
-/* ===== Submit Button ===== */
-.submit-btn {
-  width: 100%;
-  padding: 16px;
-  background: var(--accent-gradient);
-  color: white;
-  border: none;
-  border-radius: 18px;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: var(--font);
-  cursor: pointer;
-  margin-top: 8px;
-  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
-  transition: all 0.25s ease;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 15, 22, 0.6);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-.submit-btn:active {
-  transform: scale(0.97);
+.field input::placeholder {
+  color: rgba(245, 246, 247, 0.32);
 }
 
-.submit-btn:disabled {
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: none;
-  cursor: not-allowed;
-  color: rgba(255, 255, 255, 0.3);
+.field input:focus {
+  border-color: rgba(110, 193, 212, 0.6);
+  background: rgba(42, 111, 133, 0.12);
+  box-shadow: 0 0 0 3px rgba(110, 193, 212, 0.14);
+}
+.field input:focus + .trailing-icon,
+.field input:focus ~ .trailing-icon { color: var(--accent-light); }
+
+.field:has(input:focus) .leading-icon {
+  color: var(--accent-light);
+}
+
+/* Invalid state */
+.field.invalid input {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+.field.invalid > span { color: #fca5a5; }
+
+.field-error {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #f87171;
+  animation: fieldErrIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fieldErrIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.field small {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+/* Password eye toggle */
+.trailing-icon {
+  position: absolute;
+  right: 6px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 0.2s ease, background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.trailing-icon:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); }
+.trailing-icon:active { transform: scale(0.92); }
+
+/* ----------------------- Row: remember + forgot ----------- */
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 18px;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Compensate for the click-area being just the box */
+  padding: 6px 4px 6px 0;
+}
+.checkbox input { position: absolute; opacity: 0; pointer-events: none; }
+
+.check-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(110, 193, 212, 0.55);
+  background: transparent;
+  position: relative;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+.checkbox input:checked + .check-box {
+  background: linear-gradient(135deg, #2a6f85, #6ec1d4);
+  border-color: transparent;
+}
+.checkbox input:checked + .check-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") center/12px no-repeat;
+}
+.check-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+
+.text-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--accent-light);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.text-btn:active { opacity: 0.6; }
+
+/* ----------------------- Submit button -------------------- */
+.submit-btn {
+  width: 100%;
+  /* iPhone 15 touch target: ≥56px */
+  min-height: 56px;
+  border: 0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #2a6f85, #6ec1d4);
+  color: #ffffff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  box-shadow:
+    0 12px 28px -10px rgba(110, 193, 212, 0.55),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.18),
+    inset 0 1px 4px rgba(255, 255, 255, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.submit-btn:not(:disabled):hover  { transform: translateY(-1px); }
+.submit-btn:not(:disabled):active { transform: scale(0.97); }
+.submit-btn:disabled { opacity: 0.6; cursor: wait; }
+
+/* Inline spinner */
+.btn-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ----------------------- Agreement copy ------------------ */
+.agreement {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}
+.agreement a {
+  color: var(--accent-light);
+  text-decoration: none;
+}
+.agreement a:hover { text-decoration: underline; }
+
+/* ----------------------- Responsive tweaks ---------------- */
+@media (max-height: 720px) {
+  .brand { padding-top: 36px; padding-bottom: 8px; }
+  .logo  { width: 56px; height: 56px; margin-bottom: 14px; }
+  .brand h1 { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand, .auth-card, .tabs button.active::after,
+  .field-error, .btn-spinner {
+    animation: none !important;
+  }
 }

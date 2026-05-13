@@ -1,5 +1,4 @@
 <div class="search-page">
-
   <div class="search-header">
     <h1>Поиск</h1>
     <div class="search-input-wrap">
@@ -9,25 +8,53 @@
       </svg>
       <input
         [(ngModel)]="searchQuery"
-        (ngModelChange)="filter()"
-        placeholder="Город, страна..."
+        (ngModelChange)="loadResults()"
+        placeholder="Город или достопримечательность"
         class="search-input"
       />
     </div>
   </div>
 
-  <div class="tags-row">
-    @for (tag of allTags; track tag) {
-      <button
-        class="tag-btn"
-        [class.active]="selectedTag === tag"
-        (click)="selectTag(tag)">
-        {{ tag }}
-      </button>
-    }
-  </div>
+  @if (filters.regions.length) {
+    <div class="filter-title">Регионы</div>
+    <div class="tags-row">
+      @for (region of filters.regions; track region) {
+        <button class="tag-btn" [class.active]="selectedRegion === region" (click)="selectRegion(region)">
+          {{ region }}
+        </button>
+      }
+    </div>
+  }
 
-  @if (filteredCities.length === 0) {
+  @if (filters.attractionTypes.length) {
+    <div class="filter-title">Типы мест</div>
+    <div class="tags-row">
+      @for (type of filters.attractionTypes; track type) {
+        <button class="tag-btn" [class.active]="selectedType === type" (click)="selectType(type)">
+          {{ type }}
+        </button>
+      }
+    </div>
+  }
+
+  <!-- City-level tags ("море", "столица", "культура", …) — client-side
+       filter over the result set. Hidden when there's nothing to show. -->
+  @if (topTags.length) {
+    <div class="filter-title">Теги</div>
+    <div class="tags-row">
+      @for (tag of topTags; track tag) {
+        <button class="tag-btn city-tag-btn" [class.active]="selectedTag === tag" (click)="selectTag(tag)">
+          {{ tag }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="empty"><p>Ищем...</p></div>
+  }
+
+  @if (!isLoading && filteredCities.length === 0) {
     <div class="empty">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3; margin-bottom: 12px;">
         <circle cx="11" cy="11" r="8"/>
@@ -50,10 +77,19 @@
               {{ city.rating }}
             </span>
             <h3 class="card-title">{{ city.name }}</h3>
+            @if (city.region) {
+              <p class="card-region">{{ city.region }}</p>
+            }
+            @if (cityTags(city).length) {
+              <div class="card-tags">
+                @for (tag of cityTags(city).slice(0, 3); track tag) {
+                  <span class="card-tag-pill">{{ tag }}</span>
+                }
+              </div>
+            }
           </div>
         </div>
       </div>
     }
   </div>
-
 </div>
